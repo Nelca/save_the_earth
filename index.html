@@ -1,0 +1,2804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>ちいさな地球の治しかた — SAVE THE EARTH</title>
+<style>
+:root{
+  --night:#080d20;
+  --night2:#0e1536;
+  --panel:#141d42;
+  --panel-edge:#2a3873;
+  --glass:rgba(20,29,66,.82);
+  --ink:#ecf1ff;
+  --ink-dim:#8d9cc9;
+  --heal:#3fd6a3;
+  --hurt:#ff6b4a;
+  --sky:#5fc7f0;
+  --gold:#f5c451;
+  --paper:#f6efdd;
+  --paper2:#efe5cc;
+  --paper-ink:#41372a;
+  --gothic:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic UI','Yu Gothic','Meiryo',sans-serif;
+  --mincho:'Hiragino Mincho ProN','Yu Mincho','YuMincho','MS PMincho',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #182150 0%, transparent 60%),
+    radial-gradient(900px 600px at 85% 110%, #0b1a3a 0%, transparent 55%),
+    var(--night);
+  color:var(--ink);
+  font-family:var(--gothic);
+  overflow:hidden;
+  user-select:none;-webkit-user-select:none;
+}
+#app{max-width:560px;margin:0 auto;height:100dvh;position:relative;overflow:hidden}
+@media(min-width:700px){
+  #app{box-shadow:0 0 0 1px #212c5c,0 0 120px rgba(18,28,74,.8)}
+}
+button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;background:none}
+.btn{
+  background:linear-gradient(180deg,#49e0ac,#23a97b);
+  color:#04301f;font-weight:800;font-size:16px;letter-spacing:.04em;
+  padding:14px 32px;border-radius:999px;
+  box-shadow:0 4px 0 #167a56, 0 10px 28px rgba(63,214,163,.35);
+  transition:transform .08s, box-shadow .08s;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #167a56}
+.btn.ghost{background:rgba(255,255,255,.04);color:var(--ink-dim);box-shadow:none;border:1.5px solid var(--panel-edge);font-weight:700}
+.btn.gold{background:linear-gradient(180deg,#ffd97a,#e0a832);color:#4a3200;box-shadow:0 4px 0 #a97b1c,0 10px 28px rgba(245,196,81,.35)}
+.btn:disabled{filter:grayscale(.9);opacity:.45;pointer-events:none}
+
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0}
+.stars i{position:absolute;width:2px;height:2px;background:#cfe0ff;border-radius:50%;animation:tw 4s infinite}
+@keyframes tw{0%,100%{opacity:.1}50%{opacity:.9}}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;z-index:1;
+  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 12px)}
+.screen.active{display:flex;animation:scrIn .45s ease-out}
+@keyframes scrIn{from{opacity:0}to{opacity:1}}
+
+/* ============ INTRO ============ */
+#scr-intro{align-items:center;justify-content:center;gap:26px;text-align:center}
+.intro-cap{font-family:var(--mincho);font-size:15px;color:var(--ink-dim);letter-spacing:.15em;line-height:2.2;min-height:66px}
+.parcel-wrap{position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.parcel{width:170px;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55));transition:transform .2s}
+.parcel-wrap:active .parcel{transform:scale(.97)}
+.parcel-wrap.shake .parcel{animation:pshake .5s}
+@keyframes pshake{0%,100%{transform:rotate(0)}20%{transform:rotate(-4deg)}40%{transform:rotate(4deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
+.parcel-wrap.burst .parcel{animation:pop .6s forwards}
+@keyframes pop{40%{transform:scale(1.12)}100%{transform:scale(0);opacity:0}}
+.flash{position:absolute;inset:-40px;border-radius:50%;background:radial-gradient(circle,#fff8e0 0%,rgba(255,244,200,.35) 35%,transparent 70%);opacity:0;pointer-events:none}
+.parcel-wrap.burst .flash{animation:flash .9s ease-out}
+@keyframes flash{20%{opacity:1}100%{opacity:0;transform:scale(1.6)}}
+.intro-earth{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.3) translateY(30px);transition:all 1s cubic-bezier(.2,.9,.3,1.2)}
+.intro-earth.show{opacity:1;transform:scale(1) translateY(0)}
+.intro-earth .earth-holder{width:220px}
+.tap-pulse{font-size:12px;color:var(--ink-dim);animation:tw 1.8s infinite;letter-spacing:.2em}
+
+/* ============ LETTER ============ */
+.letter-bg{position:absolute;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(4,7,18,.8);backdrop-filter:blur(3px)}
+.letter-bg.show{display:flex}
+.letter{
+  width:88%;max-width:420px;max-height:80%;overflow-y:auto;
+  background:
+    linear-gradient(rgba(120,90,40,.05) 1px, transparent 1px) 0 0/100% 34px,
+    linear-gradient(160deg,var(--paper),var(--paper2));
+  color:var(--paper-ink);border-radius:4px;padding:34px 28px 28px;font-family:var(--mincho);
+  box-shadow:0 30px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(160,120,60,.12);
+  position:relative;animation:letterIn .6s ease-out;
+}
+@keyframes letterIn{from{transform:translateY(50px) rotate(1.5deg);opacity:0}to{transform:none;opacity:1}}
+.letter::before{content:'';position:absolute;top:12px;right:14px;width:52px;height:52px;border:2px solid rgba(190,60,40,.45);border-radius:50%;
+  background:radial-gradient(circle at 50% 42%, rgba(190,60,40,.14), transparent 65%)}
+.letter::after{content:'万国郵便 ✦ 2126';position:absolute;top:30px;right:8px;width:64px;text-align:center;font-size:8px;color:rgba(190,60,40,.6);transform:rotate(-12deg)}
+.letter .l-line{font-size:14.5px;line-height:2.35;letter-spacing:.06em;opacity:0;transform:translateY(6px);transition:all .7s;white-space:pre-wrap}
+.letter .l-line.on{opacity:1;transform:none}
+.letter .l-line.whisper{color:#7a6a4f;font-style:italic}
+.letter .l-sign{text-align:right;margin-top:14px;font-size:14px}
+.letter-actions{margin-top:20px;display:flex;justify-content:center}
+.letter-actions .btn{font-family:var(--gothic)}
+
+/* ============ HOME ============ */
+#scr-home{align-items:center;gap:6px}
+.home-top{width:100%;display:flex;justify-content:space-between;align-items:center;padding:2px 4px}
+.home-title{font-family:var(--mincho);font-size:16px;letter-spacing:.14em}
+.home-sub{font-size:10.5px;color:var(--ink-dim);letter-spacing:.08em;margin-top:2px}
+.icon-btn{width:38px;height:38px;border-radius:12px;background:var(--glass);border:1px solid var(--panel-edge);font-size:17px;display:flex;align-items:center;justify-content:center}
+.home-top .right{display:flex;gap:8px}
+
+#earth-stagearea{flex:1;width:100%;display:flex;align-items:center;justify-content:center;position:relative;min-height:0}
+#earth-wrap{width:min(90vw,400px);transition:transform .7s cubic-bezier(.3,.8,.3,1);cursor:pointer;position:relative}
+#earth-wrap.inspect{transform:scale(1.1)}
+#earth-wrap .earth-holder{width:100%}
+.earth-hint{position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;font-size:12px;color:var(--ink-dim);
+  background:var(--glass);border:1px solid var(--panel-edge);padding:7px 16px;border-radius:999px;white-space:nowrap;
+  animation:hintFloat 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes hintFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+.heal-meter{width:min(78%,320px);display:flex;flex-direction:column;align-items:center;gap:5px;padding-bottom:4px}
+.heal-bar{width:100%;height:10px;border-radius:99px;background:var(--night2);border:1px solid var(--panel-edge);overflow:hidden}
+.heal-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff8a5e,var(--gold),var(--heal));transition:width 1.2s ease}
+.heal-label{font-size:11px;color:var(--ink-dim);letter-spacing:.08em;text-align:center;line-height:1.7}
+.heal-label b{color:var(--heal)}
+.heal-label .dom{color:var(--sky)}
+
+.envelope{position:absolute;left:50%;bottom:104px;transform:translate(-50%,80px);z-index:20;
+  background:linear-gradient(160deg,var(--paper),var(--paper2));color:var(--paper-ink);
+  border-radius:12px;padding:12px 20px;display:flex;gap:10px;align-items:center;font-family:var(--mincho);font-size:13.5px;
+  box-shadow:0 16px 40px rgba(0,0,0,.55);cursor:pointer;opacity:0;transition:all .6s cubic-bezier(.2,.8,.3,1.2)}
+.envelope.show{transform:translate(-50%,0);opacity:1}
+.envelope .env-icon{font-size:22px;animation:hintFloat 2s infinite}
+
+/* ============ EARTH (rotating realistic globe) ============ */
+.earth-holder{position:relative;line-height:0}
+.earth{width:100%;display:block;overflow:visible}
+/* saturation veil driven by --sick (1=fully sick .. 0=healthy), set inline */
+.globe-tint{transition:opacity 1.8s ease}
+.rot-layer{animation:spin 46s linear infinite}
+@keyframes spin{from{transform:translateX(0)}to{transform:translateX(var(--tilew))}}
+.cloud-layer{animation:spinc 62s linear infinite;opacity:.5}
+@keyframes spinc{from{transform:translateX(0)}to{transform:translateX(var(--tilew))}}
+/* domain symptom aura on static front layer */
+.symptom{transition:opacity 1.6s ease}
+.marker{cursor:pointer}
+.marker .m-ring{fill:none;stroke-width:2;opacity:.9}
+.marker .m-bg{stroke-width:1.6}
+.marker.avail .m-ring{stroke:var(--gold);animation:ringPulse 1.7s ease-out infinite}
+.marker.avail .m-bg{fill:#241c08;stroke:var(--gold)}
+.marker.part .m-bg{fill:#1a2340;stroke:var(--sky)}
+.marker.part .m-ring{stroke:var(--sky);opacity:.5}
+.marker.locked{opacity:.34;filter:grayscale(1)}
+.marker.locked .m-bg{fill:#121834;stroke:#38427a}
+.marker.done .m-bg{fill:#0d2b20;stroke:var(--heal)}
+.marker.done .m-ring{stroke:var(--heal);opacity:.4}
+@keyframes ringPulse{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+.marker .m-ring{transform-box:fill-box;transform-origin:center}
+.marker text{pointer-events:none}
+.spark{fill:#fff6c9;opacity:0}
+.healing .spark{animation:sparkle 1.5s ease-out forwards}
+@keyframes sparkle{0%{opacity:0;transform:scale(.2)}30%{opacity:1}100%{opacity:0;transform:scale(1.8)}}
+.spark{transform-box:fill-box;transform-origin:center}
+/* unlock light beam */
+.beam{stroke:var(--gold);stroke-width:2;fill:none;stroke-linecap:round;opacity:0;filter:url(#beamGlow)}
+.beam.fire{animation:beamFire 1.6s ease-out forwards}
+@keyframes beamFire{0%{opacity:0;stroke-dashoffset:var(--blen)}30%{opacity:.95}70%{opacity:.95;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:0}}
+
+/* ============ PLAY ============ */
+#scr-play{gap:8px;padding-top:calc(env(safe-area-inset-top) + 8px)}
+.hud{display:flex;align-items:center;gap:10px}
+.hud-mission{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hud-mission .hm-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-mission .hm-axis{font-size:9.5px;color:var(--ink-dim)}
+.hud .spacer{flex:1}
+
+.timebar{display:flex;align-items:center;gap:7px}
+.timebar .hourglass{font-size:16px}
+.pips{display:flex;gap:4px}
+.pip{width:11px;height:16px;border-radius:4px;background:var(--night2);border:1px solid var(--panel-edge);transition:all .4s;position:relative}
+.pip.ev::after{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#a88be8;box-shadow:0 0 5px #a88be8}
+.pip.left{background:linear-gradient(180deg,#ffd97a,#e0a832);border-color:#a97b1c;box-shadow:0 0 6px rgba(245,196,81,.4)}
+.pip.now{animation:pipPulse 1.2s infinite}
+@keyframes pipPulse{50%{transform:scaleY(1.25);box-shadow:0 0 12px rgba(245,196,81,.8)}}
+.time-label{font-size:11px;color:var(--gold);font-weight:800;white-space:nowrap}
+.time-label.urgent{color:var(--hurt)}
+.hh-deck{font-weight:700;color:var(--ink-dim);font-size:10px;margin-left:2px}
+.hand.wait{opacity:.55;pointer-events:none;transition:opacity .25s}
+.fx-env{color:#2a7fb0}.fx-good{color:#158a5f}.fx-life{color:#9a7414}.fx-bad{color:#c04a2e}
+@keyframes bshake{0%,100%{transform:none}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.board.shake{animation:bshake .5s}
+
+.gauges{display:flex;gap:10px}
+.gauge{flex:1;background:var(--glass);border:1px solid var(--panel-edge);border-radius:12px;padding:7px 10px 8px}
+.gauge .g-head{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.gauge .g-head b{font-size:13px}
+.gauge .g-bar{height:11px;background:var(--night);border-radius:99px;overflow:hidden;position:relative}
+.gauge .g-bar i{display:block;height:100%;border-radius:99px;transition:width .7s cubic-bezier(.3,.8,.4,1)}
+.gauge .g-target{position:absolute;top:-2px;bottom:-2px;width:2.5px;background:#fff;opacity:.9;border-radius:2px}
+.g-bar-wrap{position:relative;padding-bottom:14px}
+.g-tnum{position:absolute;top:12px;transform:translateX(-50%);font-size:9.5px;font-weight:800;color:#cfd9f5;opacity:.9;transition:color .4s;white-space:nowrap}
+.g-tnum.ok{color:var(--heal)}
+.g-tnum::before{content:'▲';display:block;text-align:center;font-size:6px;line-height:5px;opacity:.7}
+#g-env i{background:linear-gradient(90deg,#2e86c4,var(--sky))}
+#g-life i{background:linear-gradient(90deg,#c78a2e,var(--gold))}
+.gauge.bump b{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.35)}}
+
+.board{position:relative;background:
+  radial-gradient(400px 200px at 50% 30%, rgba(60,90,180,.14), transparent 70%),
+  var(--glass);
+  border:1.5px solid var(--panel-edge);border-radius:18px;padding:4px 4px 0;
+  transition:box-shadow .25s, border-color .25s}
+.board.drop-hot{border-color:var(--heal);box-shadow:0 0 0 3px rgba(63,214,163,.25), 0 0 40px rgba(63,214,163,.25) inset}
+.board svg{width:100%;display:block}
+.board .drop-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+  font-size:14px;font-weight:800;color:var(--heal);opacity:0;transition:opacity .2s;letter-spacing:.1em;
+  background:rgba(10,15,36,.35);border-radius:18px}
+.board.drop-hot .drop-hint{opacity:1}
+#f-load,#f-care{transition:stroke-width .6s ease}
+.envnode{transition:stroke .8s ease}
+.envnode.flash{animation:envFlash .8s}
+@keyframes envFlash{30%{filter:drop-shadow(0 0 12px var(--heal))}}
+.forecast-chip{transition:opacity .4s}
+
+.pop{position:absolute;font-weight:900;font-size:15px;pointer-events:none;z-index:15;
+  text-shadow:0 2px 8px rgba(0,0,0,.7);animation:popRise 1.5s ease-out forwards;white-space:nowrap}
+@keyframes popRise{0%{opacity:0;transform:translate(-50%,8px) scale(.6)}18%{opacity:1;transform:translate(-50%,-4px) scale(1.15)}30%{transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-46px)}}
+
+.log-line{font-size:11.5px;color:var(--ink-dim);text-align:center;min-height:18px;line-height:1.55;padding:0 4px}
+.log-line b{color:var(--ink)}
+.log-line .combo{color:var(--gold);font-weight:900}
+
+.hand-wrap{margin-top:auto;display:flex;flex-direction:column;gap:7px}
+.hand-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink-dim);padding:0 4px;gap:8px}
+.hint-btn{background:rgba(168,139,232,.18);border:1px solid rgba(168,139,232,.4);color:#c9b6f0;border-radius:99px;
+  padding:3px 10px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.hint-btn:active{transform:scale(.96)}
+.hand{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;min-height:128px}
+.card{
+  background:linear-gradient(165deg,#fdfaf1,#ece5d2);
+  color:#2c3450;border-radius:13px;padding:9px 6px 8px;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;
+  border:2px solid #d8cfb6;position:relative;box-shadow:0 3px 0 #c9bfa4, 0 6px 14px rgba(0,0,0,.35);
+  min-height:126px;touch-action:none;transition:transform .15s, opacity .15s, box-shadow .15s;
+}
+.card.dragging-src{opacity:.25;transform:scale(.94)}
+.card.combo-ready{border-color:var(--gold);box-shadow:0 3px 0 #b8912c, 0 0 16px rgba(245,196,81,.45)}
+.card.combo-ready::after{content:'コンボ!';position:absolute;top:-9px;right:-5px;background:var(--gold);color:#4a3200;
+  font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.card.evolved{border-color:#a88be8;box-shadow:0 3px 0 #6d4fb0, 0 0 16px rgba(168,139,232,.45)}
+.card.evolved::before{content:'✨進化';position:absolute;top:-9px;left:-5px;background:#a88be8;color:#2a1c4a;
+  font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.card.new-deal{animation:deal .45s cubic-bezier(.2,.8,.3,1.15)}
+@keyframes deal{from{transform:translateY(70px) rotate(6deg);opacity:0}}
+.card .c-icon{font-size:27px;line-height:1.15}
+.card .c-name{font-size:10.5px;font-weight:800;line-height:1.3;min-height:27px;display:flex;align-items:center}
+.card .c-tag{font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:99px;color:#fff;letter-spacing:.05em}
+.card .c-fx{font-size:8.8px;line-height:1.5;color:#5f6b8f;margin-top:auto;font-weight:600}
+.tag-policy{background:#5b7fd4}.tag-tech{background:#8a63d2}.tag-citizen{background:#e08b3d}
+.tag-nature{background:#3ba576}.tag-econ{background:#c25577}
+.hand-tip{font-size:10px;color:var(--ink-dim);text-align:center}
+
+#drag-ghost{position:fixed;z-index:100;pointer-events:none;width:92px;transform:translate(-50%,-60%) rotate(4deg) scale(1.1);
+  filter:drop-shadow(0 16px 24px rgba(0,0,0,.5));display:none}
+#drag-ghost .card{min-height:120px}
+#drag-ghost.flying{transition:left .4s cubic-bezier(.3,.7,.3,1), top .4s cubic-bezier(.3,.7,.3,1), transform .4s, opacity .4s}
+
+/* ============ overlays ============ */
+.sheet-bg{position:absolute;inset:0;background:rgba(4,7,18,.72);z-index:40;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.show{display:flex}
+.sheet{background:var(--panel);border-top:2px solid var(--panel-edge);border-radius:22px 22px 0 0;
+  width:100%;max-width:560px;padding:22px 20px calc(20px + env(safe-area-inset-bottom));max-height:82%;overflow-y:auto;
+  animation:up .3s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sheet h3{font-size:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.d-tag{font-size:10px;font-weight:800;padding:3px 10px;border-radius:99px;color:#fff}
+.d-desc{font-size:13px;line-height:1.9;color:#c8d4ee;margin:12px 0}
+.d-fx{background:var(--night2);border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:2}
+.d-fx b{color:var(--heal)}
+.d-fx .bad{color:var(--hurt)}
+.d-combo{margin-top:10px;font-size:11.5px;color:var(--gold);line-height:1.7}
+.d-fact{margin-top:12px;background:rgba(95,199,240,.08);border:1px solid rgba(95,199,240,.3);border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.85;color:#c6e6f5}
+.d-fact::before{content:'💡 現実の世界では';display:block;font-weight:800;color:var(--sky);margin-bottom:4px;font-size:11px}
+.sheet-actions{display:flex;gap:10px;margin-top:18px}
+.sheet-actions .btn{flex:1;padding:13px;font-size:14px}
+
+/* domain sheet (前編/後編選択) */
+.dom-head{display:flex;align-items:center;gap:12px}
+.dom-head .dh-icon{font-size:36px}
+.dom-head .dh-name{font-size:18px;font-weight:800;font-family:var(--mincho);letter-spacing:.05em}
+.dom-head .dh-axis{font-size:10px;color:var(--ink-dim);margin-top:3px}
+.dom-desc{font-size:12.5px;line-height:1.95;color:#c8d4ee;margin:12px 0 8px}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mrow{width:100%;text-align:left;background:rgba(255,255,255,.04);border:1.5px solid var(--panel-edge);border-radius:14px;
+  padding:13px 15px;color:var(--ink);transition:all .15s;display:flex;gap:12px;align-items:center}
+.mrow:active{transform:scale(.985)}
+.mrow.avail{border-color:var(--gold)}
+.mrow.done{border-color:#1c5c46;background:rgba(15,52,40,.5)}
+.mrow.locked{opacity:.5;pointer-events:none}
+.mrow .mr-badge{font-size:22px;flex-shrink:0}
+.mrow .mr-name{font-weight:800;font-size:14px}
+.mrow .mr-sub{font-size:10.5px;color:var(--ink-dim);margin-top:3px;line-height:1.5}
+.mrow .mr-state{margin-left:auto;font-size:10px;font-weight:800;flex-shrink:0}
+.mrow.avail .mr-state{color:var(--gold)}
+.mrow.done .mr-state{color:var(--heal)}
+.mrow.locked .mr-state{color:var(--ink-dim)}
+
+/* mission brief */
+.brief-head{display:flex;align-items:center;gap:12px}
+.brief-head .b-icon{font-size:38px}
+.brief-head .b-name{font-size:18px;font-weight:800;font-family:var(--mincho);letter-spacing:.05em}
+.brief-head .b-axis{font-size:10px;color:var(--ink-dim);margin-top:3px}
+.brief-desc{font-size:13px;line-height:2;color:#c8d4ee;margin:14px 0 12px}
+.goal-row{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;background:var(--night2);border-radius:12px;padding:10px 13px;line-height:1.7;margin-bottom:8px}
+.goal-row b{color:var(--sky)}
+.goal-row.resident-row{background:rgba(168,139,232,.12);border:1px solid rgba(168,139,232,.3)}
+.goal-row.resident-row b{color:#a88be8}
+
+/* dilemma + event (shared visual) */
+.dilemma-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.dilemma-bg.show{display:flex}
+.dilemma{background:linear-gradient(170deg,#2a2148,#191539);border:1.5px solid #6d5bb8;border-radius:20px;
+  padding:24px 20px;width:100%;max-width:400px;animation:up .35s cubic-bezier(.2,.8,.3,1)}
+.dilemma .dl-badge{font-size:10px;color:#c9b8ff;letter-spacing:.25em;text-align:center;margin-bottom:8px}
+.dilemma h3{font-size:17px;text-align:center;margin-bottom:10px}
+.dilemma .dl-text{font-size:13px;line-height:1.95;color:#d5cdf2;margin-bottom:16px}
+.dl-opt{width:100%;text-align:left;background:rgba(255,255,255,.05);border:1.5px solid #4b3f8c;border-radius:14px;
+  padding:13px 15px;margin-bottom:10px;color:var(--ink);transition:all .15s}
+.dl-opt:active{transform:scale(.98);border-color:#c9b8ff}
+.dl-opt .o-name{font-weight:800;font-size:13.5px}
+.dl-opt .o-fx{font-size:11px;color:#b3a8de;margin-top:4px;line-height:1.6}
+
+/* event modal */
+.event-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:52;display:none;align-items:center;justify-content:center;padding:20px}
+.event-bg.show{display:flex}
+.eventc{background:linear-gradient(170deg,#20305c,#131c3e);border:1.5px solid #3f5aa0;border-radius:20px;
+  padding:24px 20px;width:100%;max-width:400px;animation:up .35s cubic-bezier(.2,.8,.3,1)}
+.eventc .ev-badge{font-size:10px;color:#a9c4ff;letter-spacing:.25em;text-align:center;margin-bottom:10px}
+.eventc .ev-icon{font-size:40px;text-align:center;line-height:1;margin-bottom:6px}
+.eventc h3{font-size:17px;text-align:center;margin-bottom:10px}
+.eventc .ev-text{font-size:13px;line-height:1.9;color:#d5e0f5;margin-bottom:12px;text-align:center}
+.ev-impact{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.ev-imp{font-size:12px;font-weight:800;padding:5px 13px;border-radius:99px;background:var(--night2);border:1px solid var(--panel-edge)}
+.ev-imp.bad{color:var(--hurt);border-color:#6b2a1c;background:rgba(80,26,18,.4)}
+.ev-imp.good{color:var(--heal);border-color:#1c5c46;background:rgba(15,52,40,.5)}
+.ev-imp.boost{color:#c9b8ff;border-color:#4b3f8c;background:rgba(60,48,120,.4)}
+.eventc .ev-fact{background:rgba(95,199,240,.08);border:1px solid rgba(95,199,240,.28);border-radius:12px;padding:11px 13px;font-size:11.5px;line-height:1.8;color:#c6e6f5;margin-bottom:16px}
+.eventc .ev-fact::before{content:'💡 ';}
+.eventc .btn{width:100%}
+
+/* result */
+.result-bg{position:absolute;inset:0;background:rgba(4,7,18,.85);z-index:55;display:none;align-items:center;justify-content:center;padding:18px}
+.result-bg.show{display:flex}
+.result{width:100%;max-width:420px;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:22px;
+  padding:26px 22px;text-align:center;animation:up .4s cubic-bezier(.2,.8,.3,1);max-height:88%;overflow-y:auto}
+.stamp{display:inline-block;font-family:var(--mincho);font-weight:800;letter-spacing:.12em;
+  padding:10px 26px;border-radius:8px;transform:rotate(-4deg);font-size:22px;margin-bottom:8px;animation:stampIn .5s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes stampIn{from{transform:rotate(-4deg) scale(2.4);opacity:0}}
+.stamp.win{color:var(--heal);border:3px solid var(--heal);box-shadow:0 0 30px rgba(63,214,163,.3)}
+.stamp.lose{color:var(--hurt);border:3px solid var(--hurt)}
+.result .r-detail{font-size:12.5px;color:var(--ink-dim);line-height:1.9;margin:8px 0 14px}
+.result .r-detail .stars{color:var(--gold);font-size:16px;letter-spacing:.15em}
+.learn{background:rgba(95,199,240,.08);border:1px solid rgba(95,199,240,.3);border-radius:14px;padding:14px;font-size:12px;line-height:1.9;text-align:left;color:#c6e6f5;margin-bottom:14px}
+.learn h4{color:var(--sky);font-size:12.5px;margin-bottom:5px}
+.reward{margin:4px 0 14px;perspective:600px}
+.reward .rw-label{font-size:12px;color:var(--gold);font-weight:800;margin-bottom:10px;letter-spacing:.1em}
+.rw-row{display:flex;gap:12px;justify-content:center}
+.rw-row .card{margin:0;pointer-events:auto;cursor:pointer;box-shadow:0 3px 0 #c9bfa4,0 6px 14px rgba(0,0,0,.35)}
+.rw-row .card:active{transform:scale(.96)}
+.rw-row .card.picked{border-color:var(--gold);box-shadow:0 0 26px rgba(245,196,81,.6),0 3px 0 #b8912c}
+.rw-row .card.notpicked{opacity:.3;pointer-events:none}
+.goal-strip{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.gs-item{font-size:10.5px;font-weight:800;padding:4px 11px;border-radius:99px;background:var(--night2);border:1px solid var(--panel-edge);color:var(--ink-dim);letter-spacing:.02em}
+.gs-item.ok{color:var(--heal);border-color:#1c5c46;background:rgba(15,52,40,.6)}
+.gs-item.warn{color:var(--hurt);border-color:#6b2a1c}
+.stance-opt{width:100%;text-align:left;background:rgba(255,255,255,.04);border:1.5px solid var(--panel-edge);border-radius:14px;padding:14px 15px;color:var(--ink);transition:all .15s}
+.stance-opt:active{transform:scale(.98);border-color:var(--gold)}
+.stance-opt .s-name{font-weight:800;font-size:14.5px}
+.stance-opt .s-desc{font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6}
+.stance-opt .s-fx{font-size:11px;color:var(--heal);margin-top:3px;font-weight:800}
+.m-note{font-size:11.5px;color:var(--ink-dim);text-align:center;line-height:1.8}
+@keyframes flipIn{0%{transform:rotateY(180deg) scale(.4);opacity:0}60%{transform:rotateY(0) scale(1.15)}100%{transform:none}}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.result-actions .btn{padding:12px 22px;font-size:14px}
+
+/* modal */
+.modal-bg{position:absolute;inset:0;background:rgba(4,7,18,.78);z-index:70;display:none;align-items:center;justify-content:center;padding:18px}
+.modal-bg.show{display:flex}
+.modal{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:20px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:11px;max-height:86%;overflow-y:auto}
+.modal h3{font-size:16px;text-align:center;font-family:var(--mincho);letter-spacing:.1em}
+.modal .btn{width:100%;padding:12px;font-size:14px}
+.rule-body{font-size:12.5px;line-height:2;color:#c8d4ee}
+.rule-body b{color:var(--gold)}
+.coll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.coll-grid .card{min-height:108px;pointer-events:auto;cursor:pointer;touch-action:auto}
+.coll-grid .card.locked-card{filter:grayscale(1) brightness(.5);pointer-events:none}
+.coll-grid .card.locked-card .c-icon{filter:blur(2px)}
+.coll-grid .card.picked{border-color:var(--gold);box-shadow:0 0 20px rgba(245,196,81,.55),0 3px 0 #b8912c}
+.deck-sec{font-size:11.5px;color:var(--gold);font-weight:800;margin:12px 0 7px;text-align:left}
+.coll-grid .card.base-card{opacity:.82}
+.coll-grid .card .dup-badge{position:absolute;top:-7px;right:-4px;background:var(--sky);color:#04202e;
+  font-size:9.5px;font-weight:900;padding:1px 6px;border-radius:99px}
+.reveal-icon{font-size:44px;text-align:center;line-height:1;margin:2px 0 6px;
+  animation:revealPop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes revealPop{from{transform:scale(.3) rotate(-12deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.reveal-title{text-align:center;color:var(--gold);margin:0 0 8px}
+.pulse{position:relative;animation:btnPulse 1.6s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,196,81,.55)}50%{box-shadow:0 0 0 7px rgba(245,196,81,0)}}
+.skill-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.skill-row{background:var(--night2);border:1px solid var(--panel-edge);border-radius:12px;padding:10px 12px}
+.skill-row.owned{opacity:.7}
+.skill-row.gated{opacity:.4}
+.skill-row.gated .sk-cost{color:var(--ink-dim)}
+.skill-row .sk-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px}
+.skill-row .sk-cost{color:var(--gold);font-size:11.5px;font-weight:700}
+.skill-row .sk-desc{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin-top:4px}
+.skill-row .sk-buy{margin-top:8px;width:100%}
+.coll-count{font-size:11px;color:var(--ink-dim);text-align:center}
+
+/* ending */
+#scr-ending{align-items:center;justify-content:center;gap:18px;text-align:center}
+#scr-ending .end-earth{width:min(80vw,320px)}
+.end-title{font-family:var(--mincho);font-size:22px;letter-spacing:.2em}
+.end-sub{font-size:12px;color:var(--ink-dim);line-height:2}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-height:640px){
+  .card{min-height:112px}.card .c-icon{font-size:23px}
+  .hand{min-height:114px}
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+  <div class="stars" id="stars"></div>
+
+  <!-- INTRO -->
+  <div class="screen active" id="scr-intro">
+    <div class="intro-cap" id="intro-cap">ある日、あなたのもとに<br>差出人のない荷物が届いた。</div>
+    <div class="parcel-wrap" id="parcel-wrap">
+      <div class="flash"></div>
+      <svg class="parcel" viewBox="0 0 120 110">
+        <g id="parcel-lid">
+          <polygon points="10,34 60,14 110,34 60,54" fill="#a8845c"/>
+          <polygon points="10,34 60,54 60,60 10,40" fill="#8a6a47"/>
+          <polygon points="110,34 60,54 60,60 110,40" fill="#96754f"/>
+          <rect x="56" y="14" width="8" height="40" fill="#d8c9a5"/>
+        </g>
+        <polygon points="10,40 60,60 60,104 10,84" fill="#7d6040"/>
+        <polygon points="110,40 60,60 60,104 110,84" fill="#8f6f4a"/>
+        <rect x="30" y="66" width="22" height="14" fill="#efe6cf" transform="rotate(-11 41 73)"/>
+        <text x="41" y="76" font-size="7" fill="#8a3b2e" text-anchor="middle" transform="rotate(-11 41 73)">2126</text>
+      </svg>
+      <div class="intro-earth" id="intro-earth"></div>
+    </div>
+    <div class="tap-pulse" id="intro-tap">— 荷物にふれる —</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="scr-home">
+    <div class="home-top">
+      <div>
+        <div class="home-title">ちいさな地球</div>
+        <div class="home-sub" id="home-sub">未来から届いた、壊れかけの星</div>
+      </div>
+      <div class="right">
+        <button class="icon-btn" id="btn-coll" title="カード帳">🗂️</button>
+        <button class="icon-btn" id="btn-skill" title="スキル" style="display:none">🌟</button>
+        <button class="icon-btn" id="btn-synth" title="合成" style="display:none">🔬</button>
+        <button class="icon-btn" id="btn-home-menu" title="メニュー">≡</button>
+      </div>
+    </div>
+    <div id="earth-stagearea">
+      <div id="earth-wrap">
+        <div id="earth-svg-slot"></div>
+        <div class="earth-hint" id="earth-hint">地球にふれて、傷をしらべる</div>
+      </div>
+    </div>
+    <div class="heal-meter">
+      <div class="heal-bar"><i id="heal-fill"></i></div>
+      <div class="heal-label">修復 <b id="heal-count">0</b> / 18　傷　（<span class="dom" id="dom-count">0</span> / 9 ドメイン回復）<br><span id="heal-msg"></span></div>
+    </div>
+    <div class="envelope" id="envelope"><span class="env-icon">✉️</span><span>手紙が届いている……</span></div>
+  </div>
+
+  <!-- PLAY -->
+  <div class="screen" id="scr-play">
+    <div class="hud">
+      <div class="hud-mission">
+        <span class="hm-name" id="hm-name"></span>
+        <span class="hm-axis" id="hm-axis"></span>
+      </div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="btn-menu">≡</button>
+    </div>
+
+    <div class="gauges">
+      <div class="gauge" id="gauge-env">
+        <div class="g-head"><span>🌍 環境</span><b id="g-env-val">0</b></div>
+        <div class="g-bar-wrap">
+          <div class="g-bar" id="g-env"><i></i><span class="g-target" id="env-target"></span></div>
+          <span class="g-tnum" id="env-tnum"></span>
+        </div>
+      </div>
+      <div class="gauge" id="gauge-life">
+        <div class="g-head"><span>🏘️ くらし</span><b id="g-life-val">0</b></div>
+        <div class="g-bar-wrap">
+          <div class="g-bar" id="g-life"><i></i><span class="g-target" id="life-target" style="display:none"></span></div>
+          <span class="g-tnum" id="life-tnum"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="goal-strip" id="goal-strip"></div>
+
+    <div class="board" id="board">
+      <svg id="board-svg" viewBox="0 0 340 232" aria-label="世界のつながり"></svg>
+      <div class="drop-hint">ここにカードを置く</div>
+    </div>
+
+    <div class="log-line" id="log-line"></div>
+
+    <div class="hand-wrap">
+      <div class="hand-head">
+        <span class="hh-left">🃏 アクションカード <b class="hh-deck" id="deck-count"></b></span>
+        <button class="hint-btn" id="btn-hint" title="ヒロに相談する">💬 ヒロ</button>
+        <div class="timebar">
+          <span class="hourglass" id="hourglass">⏳</span>
+          <div class="pips" id="pips"></div>
+          <span class="time-label" id="time-label"></span>
+        </div>
+      </div>
+      <div class="hand" id="hand"></div>
+      <div class="hand-tip" id="hand-tip">カードを<b>盤面へドラッグ</b>で実行 ／ タップで詳しく</div>
+    </div>
+  </div>
+
+  <!-- ENDING -->
+  <div class="screen" id="scr-ending">
+    <div class="end-earth" id="end-earth"></div>
+    <div class="end-title">青い星、ふたたび</div>
+    <div class="end-sub" id="end-sub"></div>
+    <button class="btn ghost" id="btn-end-restart">はじめから読み直す</button>
+  </div>
+
+  <!-- letter overlay -->
+  <div class="letter-bg" id="letter-bg">
+    <div class="letter" id="letter">
+      <div id="letter-lines"></div>
+      <div class="letter-actions" id="letter-actions"><button class="btn" id="btn-letter-close">とじる</button></div>
+    </div>
+  </div>
+
+  <!-- card detail sheet -->
+  <div class="sheet-bg" id="sheet-bg">
+    <div class="sheet">
+      <h3><span id="d-icon"></span><span id="d-name"></span><span class="d-tag" id="d-tag"></span></h3>
+      <div class="d-desc" id="d-desc"></div>
+      <div class="d-fx" id="d-fx"></div>
+      <div class="d-combo" id="d-combo"></div>
+      <div class="d-combo" id="d-slot"></div>
+      <div class="d-fact" id="d-fact"></div>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="btn-sheet-close">とじる</button>
+        <button class="btn" id="btn-sheet-play">場に出す ▸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- domain sheet (前編/後編 選択) -->
+  <div class="sheet-bg" id="dom-bg">
+    <div class="sheet">
+      <div class="dom-head">
+        <span class="dh-icon" id="dh-icon"></span>
+        <div>
+          <div class="dh-name" id="dh-name"></div>
+          <div class="dh-axis" id="dh-axis"></div>
+        </div>
+      </div>
+      <div class="dom-desc" id="dh-desc"></div>
+      <div class="mlist" id="dh-list"></div>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="btn-dom-close">とじる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- mission brief sheet -->
+  <div class="sheet-bg" id="brief-bg">
+    <div class="sheet">
+      <div class="brief-head">
+        <span class="b-icon" id="b-icon"></span>
+        <div>
+          <div class="b-name" id="b-name"></div>
+          <div class="b-axis" id="b-axis"></div>
+        </div>
+      </div>
+      <div class="brief-desc" id="b-desc"></div>
+      <div id="b-goals"></div>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="btn-brief-deck">🃏 デッキを編集</button>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="btn-brief-close">やめておく</button>
+        <button class="btn" id="btn-brief-go">修復をはじめる ▸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- dilemma -->
+  <div class="dilemma-bg" id="dilemma-bg">
+    <div class="dilemma">
+      <div class="dl-badge">— 決断のとき —</div>
+      <h3 id="dl-title"></h3>
+      <div class="dl-text" id="dl-text"></div>
+      <div id="dl-opts"></div>
+    </div>
+  </div>
+
+  <!-- event modal -->
+  <div class="event-bg" id="event-bg">
+    <div class="eventc">
+      <div class="ev-badge">— できごと —</div>
+      <div class="ev-icon" id="ev-icon"></div>
+      <h3 id="ev-name"></h3>
+      <div class="ev-text" id="ev-text"></div>
+      <div class="ev-impact" id="ev-impact"></div>
+      <div class="ev-fact" id="ev-fact"></div>
+      <button class="btn" id="btn-ev-ok">受け止める ▸</button>
+    </div>
+  </div>
+
+  <!-- result -->
+  <div class="result-bg" id="result-bg">
+    <div class="result">
+      <div><span class="stamp" id="r-stamp"></span></div>
+      <div class="r-detail" id="r-detail"></div>
+      <div class="reward" id="r-reward" style="display:none">
+        <div class="rw-label" id="r-reward-label">✦ どちらか1枚を、旅の仲間に選ぼう ✦</div>
+        <div class="rw-row" id="r-reward-row"></div>
+      </div>
+      <div class="learn" id="r-learn"></div>
+      <div class="result-actions" id="r-actions"></div>
+    </div>
+  </div>
+
+  <!-- menu / rules / collection modal -->
+  <div class="modal-bg" id="modal-bg">
+    <div class="modal" id="modal-box"></div>
+  </div>
+
+  <div id="drag-ghost"></div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================
+   DATA — tags / stances / domains / cards
+===================================================== */
+const TAGS={
+  policy:{label:'政策',cls:'tag-policy'},
+  tech:{label:'技術',cls:'tag-tech'},
+  citizen:{label:'市民',cls:'tag-citizen'},
+  nature:{label:'自然',cls:'tag-nature'},
+  econ:{label:'経済',cls:'tag-econ'},
+};
+/* 流儀：最初に一度だけ選ぶ「治しかた」。すべての修復にずっと効く */
+const STANCES={
+  guard:{icon:'🛡️',name:'まもる',desc:'こわさない。いまある自然を、守り抜く流儀。',fxText:'すべての修復で 毎年の保全 +1'},
+  spark:{icon:'⚡',name:'かえる',desc:'しくみと技術を、根本からつくり変える流儀。',fxText:'すべての修復で 毎年の負荷 -1'},
+  bond:{icon:'🤝',name:'つなぐ',desc:'人と歩幅を合わせ、くらしと両立させる流儀。',fxText:'すべての修復で くらしの初期値 +6'},
+};
+/* プラネタリーバウンダリー9ドメイン。地球儀マーカーの座標もここに持つ */
+const DOMAINS={
+ climate:  {name:'気候変動',        icon:'🌡️', mx:150,my:42,  desc:'温室効果ガスが熱をため込み、暑さと豪雨が極端になっていく。すべての傷に影を落とす、この星いちばんの難敵。'},
+ ozone:    {name:'成層圏オゾン',     icon:'🕳️', mx:236,my:78,  desc:'空の高いところで、太陽の紫外線から生きものを守る膜。人が出した化学物質が、その膜に穴をあけた。'},
+ aerosol:  {name:'大気エアロゾル',   icon:'🌫️', mx:66,my:80,   desc:'燃焼が生む細かな粒が空をかすませ、肺の奥にまで届く。空気は、いちばん平等に配られる環境。'},
+ freshwater:{name:'淡水の変化',      icon:'🚰', mx:44,my:158,  desc:'蛇口のむこうの川と地下水。汚れと渇きで細っていく、あたりまえの水。'},
+ novel:    {name:'新規化学物質',     icon:'🧪', mx:250,my:150, desc:'プラスチックや人工の化学物質。自然が分解できない「あたらしい汚れ」が、めぐりめぐる。'},
+ biogeo:   {name:'窒素・リンの循環', icon:'💧', mx:150,my:116, desc:'畑にまく肥料の栄養が川へ流れ、湖や海で藻を爆発させる。多すぎる栄養が、水をむしばむ。'},
+ land:     {name:'土地利用の変化',   icon:'🌳', mx:118,my:196, desc:'畑と資源のために森が切り拓かれる。森が減れば、CO2を吸う力も、水を育てる力も失われる。'},
+ biosphere:{name:'生物多様性',       icon:'🦋', mx:214,my:206, desc:'生きもののつながりが、静かにほどけていく。一種の絶滅は、見えない糸を一本ずつ切っていく。'},
+ ocean:    {name:'海洋酸性化',       icon:'🐚', mx:86,my:238,  desc:'海がCO2を吸いすぎて「酸っぱく」変わる。貝もサンゴも、殻をつくれなくなっていく。'},
+};
+const DOMAIN_LIST=Object.keys(DOMAINS);
+/* ---------- 住民キャラクター(ドメインごとに1人、傷と生活で結びつく) ---------- */
+const RESIDENTS={
+ novel:{name:'陸(りく)',role:'見習い漁師',
+  front:'「今日も網に、魚より多くごみが掛かった。この海は、もう漁師を育てる海じゃないのかもしれない。」',
+  back:'「ごみが減って、網に魚だけが躍るようになった。祖父に、胸を張って舟を継ぐと言える。」'},
+ aerosol:{name:'ひなた',role:'ぜんそく持ちの小学生',
+  front:'「今日も『外に出ちゃだめ』って言われた。友だちは外で遊んでるのに。」',
+  back:'「はじめて、マスクなしで公園まで走れた。空って、こんなに軽かったんだ。」'},
+ freshwater:{name:'宮下',role:'水道局の職員',
+  front:'「今年も断水のお知らせを貼りに行く。蛇口の向こうの苦労を、誰も知らない。」',
+  back:'「久しぶりに、断水のお知らせを貼らずに済んだ夏だった。」'},
+ ocean:{name:'多恵',role:'貝の養殖業',
+  front:'「今年の稚貝は、殻がもろい。海が『酸っぱく』なっているなんて、誰が信じるだろう。」',
+  back:'「厚みのある、しっかりした殻の貝が育った。海が、もとの声を取り戻しつつある。」'},
+ biogeo:{name:'豊(ゆたか)',role:'三代目の農家',
+  front:'「肥料は多いほど良く育つと教わった。でも湖の色を見るたび、それが正しいのか分からなくなる。」',
+  back:'「肥料を減らしても、畑はちゃんと実った。湖の水も、少しずつ澄んできた。」'},
+ climate:{name:'志保',role:'果樹園主',
+  front:'「去年は台風、今年は猛暑。天気を読む勘が、もう通用しない。」',
+  back:'「今年は、久しぶりに『いつも通り』の実りだった。それが、こんなに嬉しいなんて。」'},
+ ozone:{name:'昇',role:'元冷蔵技師',
+  front:'「あの頃あつかっていたガスが、空に穴を開けていたなんて。知らなかったでは、済まされない気がする。」',
+  back:'「穴がふさがりつつあると聞いた夜、はじめてぐっすり眠れた。」'},
+ land:{name:'篤(あつし)',role:'森のふもとの住人',
+  front:'「子どもの頃の裏山は、もう半分が更地だ。あの森で覚えた鳥の声を、もう聞けない。」',
+  back:'「裏山に、また鳥の声が戻ってきた。子どもたちに、あの森を見せられる。」'},
+ biosphere:{name:'詩織',role:'在野の生きもの観察者',
+  front:'「今年もまた、去年見た虫を見つけられなかった。この記録帳が、いつか『いなくなった図鑑』になる気がする。」',
+  back:'「記録帳に、去年いなかった名前がひとつ増えた。たった一行だけど、確かな一行だ。」'},
+};
+
+/* fx: env=即時環境 / life=即時くらし / load=毎年の負荷を減らす / care=毎年の保全を増やす / dur=持続年(0=ずっと) */
+const CARDS=[
+ {id:'c01',icon:'🚯',name:'ごみを減らす・分ける',tag:'citizen',combo:['policy'],fx:{env:4,load:1,dur:2},
+  desc:'ひとりの分別は小さくても、まち全体でやれば焼却も埋め立ても確実に減らせる。',
+  fact:'分別の徹底は、焼却によるCO2と埋立地の負担を直接減らします。まず「減らす・使い回す」が資源対策の基本です。'},
+ {id:'c02',icon:'🌴',name:'森の保護区',tag:'nature',combo:['policy'],fx:{care:3,dur:0,life:-3},
+  desc:'森を守り、生きもののすみかとCO2を吸う力を残す。ただし開発は我慢することになる。',
+  fact:'熱帯雨林は陸の生物種の多くのすみか。保護区の設定は生物多様性を守るもっとも確実な方法のひとつです。'},
+ {id:'c03',icon:'☀️',name:'太陽と風の電気',tag:'tech',combo:['econ','policy'],fx:{load:3,dur:0,life:-4},
+  desc:'化石燃料に頼らない電気へ。最初の投資は重いが、負荷はずっと減り続ける。',
+  fact:'太陽光発電のコストはこの10年ほどで大きく下がり、多くの地域で最も安い電源のひとつになりました。'},
+ {id:'c04',icon:'🏛️',name:'環境ルールの強化',tag:'policy',combo:['citizen'],fx:{load:4,dur:3,life:-6},
+  desc:'排出や乱獲に厳しいルールを。効果は大きいが、くらしへの負担も大きい劇薬。',
+  fact:'日本の公害対策は四大公害を実際に改善させました。鍵は「くらしとの両立」でした。'},
+ {id:'c05',icon:'📚',name:'学びの種まき',tag:'citizen',combo:[],fx:{care:1,dur:0,life:1},
+  desc:'学校や地域で環境を学ぶ。すぐには効かないが、未来の行動を静かに変えていく。',
+  fact:'環境教育は費用対効果が高い施策。持続可能性を学ぶ教育は各国の学びに広がっています。'},
+ {id:'c06',icon:'♻️',name:'リサイクルの輪',tag:'tech',combo:['citizen'],fx:{env:3,load:2,dur:3,life:2},
+  desc:'ごみが資源に変わる仕組みをつくる。新しい仕事も生まれる。',
+  fact:'再生素材の活用は、新品づくりよりCO2やエネルギーを減らせる場合が多くあります。'},
+ {id:'c07',icon:'🐟',name:'獲りすぎない漁',tag:'nature',combo:['policy','econ'],fx:{care:2,dur:0},
+  desc:'海の回復力を超えない獲り方に変える。未来もずっと魚が食べられる海に。',
+  fact:'世界の水産資源のかなりの割合が獲りすぎの状態。漁獲規制や認証には資源回復の実績があります。'},
+ {id:'c08',icon:'💼',name:'グリーン投資',tag:'econ',combo:['tech'],fx:{life:6,care:1,dur:0},
+  desc:'環境に良い事業へお金を流す。経済を回しながら保全の力を底上げする。',
+  fact:'環境や社会に配慮した投資は世界で拡大。「環境か経済か」ではなく「両立」が主流になりつつあります。'},
+ {id:'c09',icon:'🧹',name:'まちと浜の大そうじ',tag:'citizen',combo:['nature'],fx:{env:6},
+  desc:'みんなで拾えば、目に見えて景色が変わる。参加した人の心も変わる。',
+  fact:'海岸清掃には毎年世界で多くの人が参加。集めたごみのデータは発生源対策にも使われます。'},
+ {id:'c10',icon:'🌱',name:'木を植える',tag:'nature',combo:['citizen'],fx:{env:3,care:2,dur:3},
+  desc:'切られた土地に木を戻す。育つまで時間はかかるが、効きめは長い。',
+  fact:'木は成長期にCO2をよく吸います。ただし土地に合う木を選び、育て続けることが大切です。'},
+ {id:'c11',icon:'🚲',name:'歩く・こぐ・乗り合う',tag:'citizen',combo:['tech'],fx:{load:1,dur:0,life:1},
+  desc:'自転車・電車・徒歩をえらぶ。渋滞が減り、まちの空気も澄んでいく。',
+  fact:'クルマから電車やバスへの乗り換えは、移動あたりのCO2を大きく減らせます。'},
+ {id:'c12',icon:'🛰️',name:'環境を見張る目',tag:'tech',combo:['policy'],fx:{env:2,care:2,dur:2},
+  desc:'衛星とセンサーで異変を早く見つける。早く気づけば、早く手が打てる。',
+  fact:'温室効果ガスや森林を宇宙から監視する衛星が活躍。観測データは世界の対策の土台です。'},
+ {id:'c13',icon:'🤝',name:'世界と手を組む',tag:'policy',combo:['econ'],fx:{care:2,dur:0,life:2},
+  desc:'環境問題に国境はない。約束を交わし、いっしょに動く。',
+  fact:'オゾン層を守るモントリオール議定書は「成功した国際協力」の代表例とされています。'},
+ {id:'c14',icon:'🏭',name:'工場のクリーン化支援',tag:'econ',combo:['policy'],fx:{load:2,dur:0,life:3},
+  desc:'罰ではなく後押しで、企業の転換を加速させる。',
+  fact:'補助や税の優遇は規制と組み合わせると効果的。省エネ技術の普及を後押しします。'},
+ {id:'c15',icon:'🦆',name:'湿地と干潟の再生',tag:'nature',combo:['tech'],fx:{env:5,care:2,dur:2,life:-2},
+  desc:'失われた水辺をよみがえらせ、自然自身の「治る力」を取り戻す。',
+  fact:'回復した生態系は、水の浄化・洪水対策・漁業資源として人にも恵みを返します(生態系サービス)。'},
+ {id:'c16',icon:'🛒',name:'えらぶ買い物',tag:'citizen',combo:['econ'],fx:{load:1,care:1,dur:0},
+  desc:'環境にやさしい商品をえらぶ。買い物は、未来への投票。',
+  fact:'認証マークは「えらぶ」ための手がかり。消費者の選択が企業のふるまいを動かします。'},
+ {id:'c17',icon:'🚿',name:'水をたいせつに使う',tag:'citizen',combo:['tech'],fx:{env:2,load:1,dur:0},
+  desc:'こまめに止める、ためて使う。蛇口の向こうの川と地下水を守る。',
+  fact:'水をつくり届けるのにも多くのエネルギーが使われています。節水はエネルギー節約でもあります。'},
+ {id:'c18',icon:'🏞️',name:'川の浄化プラント',tag:'tech',combo:['policy'],fx:{env:4,load:2,dur:2,life:-1},
+  desc:'汚れた水をきれいにして川へ返す。飲み水の源をまもる要塞。',
+  fact:'世界では多くの人が安全に管理された飲み水を使えません。浄水・下水インフラは基盤です。'},
+ {id:'c19',icon:'🐠',name:'海の森(ブルーカーボン)',tag:'nature',combo:['tech'],fx:{env:4,care:2,dur:2},
+  desc:'アマモやコンブの森を育てる。海の生きもののゆりかごが、CO2も吸ってくれる。',
+  fact:'海草・海藻や干潟がたくわえる炭素は「ブルーカーボン」。各地で藻場再生が進んでいます。'},
+ {id:'c20',icon:'🌾',name:'ちょうどよい施肥',tag:'nature',combo:['policy','tech'],fx:{care:2,load:1,dur:2},
+  desc:'畑にまく肥料を、多すぎず少なすぎず。余った栄養が川へ流れるのを止める。',
+  fact:'まきすぎた窒素・リンは川や湖へ流れ、藻の大発生(富栄養化)を招きます。適正施肥はその入口を絞ります。'},
+ {id:'c21',icon:'🌀',name:'生ごみを堆肥とガスに',tag:'tech',combo:['econ'],fx:{env:3,load:1,dur:2,life:2},
+  desc:'食べ残しや家畜のふんを、肥料とエネルギーに変える。捨てるものが、めぐりだす。',
+  fact:'有機物の発酵で得るバイオガスはエネルギーに、残りは肥料に。栄養とCO2を同時に循環させます。'},
+ {id:'c22',icon:'❄️',name:'フロンの回収・破壊',tag:'tech',combo:['policy'],fx:{env:4,load:2,dur:2},
+  desc:'冷蔵庫やエアコンに眠る古いガスを、大気へ逃がさず確実に処理する。',
+  fact:'一部のフロン類はオゾン層を壊し、強力な温室効果も持ちます。確実な回収・破壊が二重の対策になります。'},
+ {id:'c23',icon:'🌳',name:'涼しいまちづくり',tag:'citizen',combo:['tech'],fx:{env:3,life:3,dur:2},
+  desc:'木陰と風の道、白い屋根。まちそのものの暑さをやわらげる。',
+  fact:'緑陰や反射性の高い屋根は、都市のヒートアイランドをやわらげ、冷房のエネルギーも減らします。'},
+ {id:'c24',icon:'🪸',name:'サンゴの保全・移植',tag:'nature',combo:['citizen'],fx:{env:4,care:1,dur:2},
+  desc:'弱ったサンゴを守り、丈夫な株を育てて移す。海の熱帯雨林を、絶やさない。',
+  fact:'サンゴ礁は海の生きものの多くを支える「海の熱帯雨林」。高水温と酸性化が白化の大きな要因です。'},
+ {id:'c25',icon:'🌿',name:'畑を覆う作物',tag:'nature',combo:['citizen'],fx:{care:2,env:2,dur:2},
+  desc:'収穫の合間も土を裸にしない。土と栄養が流れ出るのを、根がつかまえる。',
+  fact:'被覆作物(カバークロップ)は土の流出と栄養の流れ出しを抑え、土そのものを育てます。'},
+ {id:'c26',icon:'🏠',name:'断熱リフォーム',tag:'tech',combo:['citizen'],fx:{load:3,dur:0,life:-2},
+  desc:'すぐには楽にならない。でも壁の中の綿が、来年もその先も光熱費と負荷を減らし続ける。',
+  fact:'住まいの断熱は冷暖房のエネルギーを大きく減らします。効果は長く続く「一度きりの投資」です。'},
+ {id:'c27',icon:'🦢',name:'水辺の緩衝帯',tag:'nature',combo:['policy'],fx:{care:2,env:3,dur:2},
+  desc:'川べりに草木の帯を残す。畑から流れる栄養や泥を、水に入る前に受け止める。',
+  fact:'河畔の緩衝帯は栄養塩や土砂をこしとり、生きもののすみかにもなります。安価で効果的な自然の防波堤です。'},
+ {id:'c28',icon:'🔧',name:'メタン漏れを止める',tag:'tech',combo:['policy'],fx:{load:3,dur:0},
+  desc:'配管や埋立地からこっそり漏れる強力な温室効果ガスを、見つけて塞ぐ。',
+  fact:'メタンは短期間の温室効果がCO2より強い一方、漏れを止める対策は比較的すぐ効果が出ます。'},
+ /* ---- 報酬カード ---- */
+ {id:'r01',icon:'🔁',name:'ごみゼロデザイン',tag:'tech',combo:['econ','citizen'],fx:{load:2,care:1,dur:0,life:1},reward:true,
+  desc:'そもそもごみが出ない製品づくり。捨てる前提を、疑う。',
+  fact:'循環型のものづくりでは「廃棄物は設計の失敗」と考えます。使い終わりを最初から設計に織り込みます。'},
+ {id:'r02',icon:'🌧️',name:'雨水と再生水',tag:'tech',combo:['citizen'],fx:{env:3,care:2,dur:0},reward:true,
+  desc:'雨をため、使った水をもう一度使う。水は「使い捨て」ではなくなった。',
+  fact:'再生水や雨水利用は乾燥地域を中心に普及。水を何度もめぐらせて使う発想です。'},
+ {id:'r03',icon:'🌲',name:'森と生きる会社',tag:'econ',combo:['nature'],fx:{care:2,dur:0,life:4},reward:true,
+  desc:'森を壊さず森で稼ぐ。保全と経済が、はじめて同じ方向を向いた。',
+  fact:'森を守る調達(認証材など)は企業評価に直結する時代。保全と収益を両立させる試みが増えています。'},
+ {id:'r04',icon:'🔌',name:'かしこい電力網',tag:'tech',combo:['econ'],fx:{load:3,dur:0,life:3},reward:true,
+  desc:'つくる・ためる・融通する。電気の流れが賢くなり、無駄が消えていく。',
+  fact:'スマートグリッドと蓄電池は、天候で変わる再エネの弱点を補う鍵。蓄電コストも大きく下がりました。'},
+ {id:'r05',icon:'🐝',name:'花の回廊',tag:'nature',combo:['citizen'],fx:{env:3,care:2,dur:0},reward:true,
+  desc:'まちの隙間を花でつなぐ。小さな羽音が、実りを運んでくる。',
+  fact:'花壇や緑地の連なりは、花粉を運ぶ昆虫の「道」になります。私たちの食べ物の多くが彼らに支えられています。'},
+ {id:'r06',icon:'🚆',name:'まちの動脈(公共交通)',tag:'econ',combo:['citizen'],fx:{load:2,dur:0,life:2},reward:true,
+  desc:'誰もが乗れる速くて安い足。クルマに頼らない、まちの背骨。',
+  fact:'公共交通の充実したまちは、一人あたりのCO2排出が少ない傾向があります。'},
+ {id:'r07',icon:'🛠️',name:'修理する権利',tag:'policy',combo:['tech'],fx:{load:2,care:1,dur:0,life:2},reward:true,
+  desc:'直して使い続けられることを、権利として保障する。「買い替えろ」への反撃。',
+  fact:'欧州などで「修理する権利」の法制化が進行。製品の寿命を延ばすことは最良のごみ対策のひとつです。'},
+ {id:'r08',icon:'🏦',name:'自然資本バンク',tag:'econ',combo:['policy'],fx:{care:2,dur:0,life:3},reward:true,
+  desc:'森も水も土も「資本」として帳簿に載せる。守ることが、儲かることに。',
+  fact:'自然を経営や会計に組み込む枠組みが世界で広がり、保全を「コスト」から「価値」へと変えつつあります。'},
+ {id:'r09',icon:'🛩️',name:'精密農業',tag:'tech',combo:['econ'],fx:{care:2,load:1,dur:0},reward:true,
+  desc:'必要な場所に、必要なだけ。センサーとデータで肥料と水の無駄をなくす。',
+  fact:'土壌や作物のデータに基づく施肥は、栄養の流出とコストを同時に減らせます。'},
+ {id:'r10',icon:'🌍',name:'国際フロン基金',tag:'policy',combo:['econ'],fx:{load:2,care:1,dur:0,life:2},reward:true,
+  desc:'豊かな国が資金を出し、どの国もフロンを止められるように支える。',
+  fact:'オゾン層保護では、途上国の転換を支える国際的な資金の仕組みが成功の鍵になりました。'},
+ {id:'r11',icon:'🌊',name:'海藻養殖ビジネス',tag:'econ',combo:['nature'],fx:{env:3,care:1,dur:0,life:2},reward:true,
+  desc:'海藻を育てて売る。海の森を増やしながら、浜に仕事をつくる。',
+  fact:'海藻の養殖は食料・飼料・素材になり、育つ過程でCO2や栄養塩を吸収します。'},
+ {id:'r12',icon:'🦌',name:'生きものの回廊',tag:'nature',combo:['policy'],fx:{care:3,dur:0},reward:true,
+  desc:'分断された森と森を、緑の橋でつなぎ直す。生きものが、また行き来できる。',
+  fact:'生態回廊(コリドー)は分断された生息地をつなぎ、種の行き来と遺伝的な健康を保ちます。'},
+ {id:'r13',icon:'⚓',name:'ゼロエミ港湾',tag:'tech',combo:['econ'],fx:{load:2,env:2,dur:0},reward:true,
+  desc:'船も荷役も電気で動く港。海のそばの空気と水を、汚さない玄関口に。',
+  fact:'港の電動化や陸上電源は、沿岸の大気汚染とCO2をまとめて減らします。'},
+ {id:'r14',icon:'🌧️',name:'雨庭と浸透のまち',tag:'nature',combo:['citizen'],fx:{env:3,care:2,dur:0},reward:true,
+  desc:'雨をコンクリートで流さず、土と植物にしみ込ませる。まちが、スポンジになる。',
+  fact:'雨庭や透水性舗装などのグリーンインフラは、洪水をやわらげ地下水を養い、水をきれいにします。'},
+ /* ---- 進化バリアント(全42枚、6傷クリアでTier2に進化) ---- */
+ {id:'c01_t2',icon:'🚯',name:'ごみゼロのくらし',tag:'citizen',combo:['policy'],fx:{env:5,load:2,dur:2},variant:true,evolveFrom:'c01',
+  desc:'分別が当たり前になったまちは、次の一歩へ。ごみそのものを生まない工夫が広がっている。',
+  fact:'分別の徹底は、焼却によるCO2と埋立地の負担を直接減らします。まず「減らす・使い回す」が資源対策の基本です。'},
+ {id:'c10_t2',icon:'🌳',name:'森を育てる',tag:'nature',combo:['citizen'],fx:{env:4,care:3,dur:3},variant:true,evolveFrom:'c10',
+  desc:'植えた木々は根を張り、まちの人たちの手で守られる森へと育っている。',
+  fact:'植林は時間とともに炭素の吸収量が増えていきます。育て続けることが力になります。'},
+ {id:'c14_t2',icon:'🏭',name:'脱炭素工場への転換',tag:'econ',combo:['policy'],fx:{load:3,dur:0,life:4},variant:true,evolveFrom:'c14',
+  desc:'クリーン化の支援を受けた工場が、今度は自ら脱炭素をリードする側になった。',
+  fact:'産業の脱炭素化は初期投資こそ重いものの、長期的にはコスト低下と競争力の両方をもたらします。'},
+ {id:'c02_t2',icon:'🌴',name:'森の聖域',tag:'nature',combo:['policy'],fx:{care:4,dur:0,life:-2},variant:true,evolveFrom:'c02',
+  desc:'守られた森は、次の世代の生きものたちのすみかへと育っている。',
+  fact:'熱帯雨林は陸の生物種の多くのすみか。保護区の設定は生物多様性を守るもっとも確実な方法のひとつです。'},
+ {id:'c03_t2',icon:'☀️',name:'再エネがまちを照らす',tag:'tech',combo:['econ','policy'],fx:{load:4,dur:0,life:-3},variant:true,evolveFrom:'c03',
+  desc:'太陽と風の電気が当たり前になり、まちの暮らしを静かに支えている。',
+  fact:'太陽光発電のコストはこの10年ほどで大きく下がり、多くの地域で最も安い電源のひとつになりました。'},
+ {id:'c04_t2',icon:'🏛️',name:'定着したルール',tag:'policy',combo:['citizen'],fx:{load:5,dur:3,life:-5},variant:true,evolveFrom:'c04',
+  desc:'厳しかったルールは日常に根づき、痛みは薄れ効果だけが残っている。',
+  fact:'日本の公害対策は四大公害を実際に改善させました。鍵は「くらしとの両立」でした。'},
+ {id:'c05_t2',icon:'📚',name:'芽吹く学び',tag:'citizen',combo:[],fx:{care:2,dur:0,life:2},variant:true,evolveFrom:'c05',
+  desc:'まいた種が芽を出した。学んだ子どもたちが、行動する大人になっていく。',
+  fact:'環境教育は費用対効果が高い施策。持続可能性を学ぶ教育は各国の学びに広がっています。'},
+ {id:'c06_t2',icon:'♻️',name:'広がるリサイクルの輪',tag:'tech',combo:['citizen'],fx:{env:4,load:3,dur:3,life:3},variant:true,evolveFrom:'c06',
+  desc:'資源の輪はまち全体に広がり、新しい仕事と暮らしを支えている。',
+  fact:'再生素材の活用は、新品づくりよりCO2やエネルギーを減らせる場合が多くあります。'},
+ {id:'c07_t2',icon:'🐟',name:'海と生きる漁',tag:'nature',combo:['policy','econ'],fx:{care:3,dur:0},variant:true,evolveFrom:'c07',
+  desc:'獲りすぎない漁が根づき、海の中で魚たちの数が静かに戻ってきている。',
+  fact:'世界の水産資源のかなりの割合が獲りすぎの状態。漁獲規制や認証には資源回復の実績があります。'},
+ {id:'c08_t2',icon:'💼',name:'育つグリーン投資',tag:'econ',combo:['tech'],fx:{life:7,care:2,dur:0},variant:true,evolveFrom:'c08',
+  desc:'環境への投資が実を結び、経済と保全がともに育つ流れになった。',
+  fact:'環境や社会に配慮した投資は世界で拡大。「環境か経済か」ではなく「両立」が主流になりつつあります。'},
+ {id:'c09_t2',icon:'🧹',name:'続くまちと浜の大そうじ',tag:'citizen',combo:['nature'],fx:{env:7},variant:true,evolveFrom:'c09',
+  desc:'そうじは習慣になり、ごみそのものが出にくいまちへと変わってきた。',
+  fact:'海岸清掃には毎年世界で多くの人が参加。集めたごみのデータは発生源対策にも使われます。'},
+ {id:'c11_t2',icon:'🚲',name:'定着した移動のかたち',tag:'citizen',combo:['tech'],fx:{load:2,dur:0,life:2},variant:true,evolveFrom:'c11',
+  desc:'歩く・こぐ・乗り合うが当たり前になり、まちの空気はさらに澄んでいく。',
+  fact:'クルマから電車やバスへの乗り換えは、移動あたりのCO2を大きく減らせます。'},
+ {id:'c12_t2',icon:'🛰️',name:'進化した観測網',tag:'tech',combo:['policy'],fx:{env:3,care:3,dur:2},variant:true,evolveFrom:'c12',
+  desc:'見張る目はより精密になり、小さな異変も早く見つけられるようになった。',
+  fact:'温室効果ガスや森林を宇宙から監視する衛星が活躍。観測データは世界の対策の土台です。'},
+ {id:'c13_t2',icon:'🤝',name:'深まる国際協力',tag:'policy',combo:['econ'],fx:{care:3,dur:0,life:3},variant:true,evolveFrom:'c13',
+  desc:'結んだ約束は形になり、国どうしの協力がより深く進んでいる。',
+  fact:'オゾン層を守るモントリオール議定書は「成功した国際協力」の代表例とされています。'},
+ {id:'c15_t2',icon:'🦆',name:'蘇った湿地',tag:'nature',combo:['tech'],fx:{env:6,care:3,dur:2,life:-1},variant:true,evolveFrom:'c15',
+  desc:'よみがえった水辺は自ら回復する力を増し、多くの命を育んでいる。',
+  fact:'回復した生態系は、水の浄化・洪水対策・漁業資源として人にも恵みを返します(生態系サービス)。'},
+ {id:'c16_t2',icon:'🛒',name:'広がるえらぶ買い物',tag:'citizen',combo:['econ'],fx:{load:2,care:2,dur:0},variant:true,evolveFrom:'c16',
+  desc:'えらぶ買い物が当たり前になり、まちの店先の商品そのものが変わってきた。',
+  fact:'認証マークは「えらぶ」ための手がかり。消費者の選択が企業のふるまいを動かします。'},
+ {id:'c17_t2',icon:'🚿',name:'根づいた節水',tag:'citizen',combo:['tech'],fx:{env:3,load:2,dur:0},variant:true,evolveFrom:'c17',
+  desc:'節水は暮らしの一部になり、川と地下水への負担が静かに減っている。',
+  fact:'水をつくり届けるのにも多くのエネルギーが使われています。節水はエネルギー節約でもあります。'},
+ {id:'c18_t2',icon:'🏞️',name:'拡張した浄化プラント',tag:'tech',combo:['policy'],fx:{env:5,load:3,dur:2,life:0},variant:true,evolveFrom:'c18',
+  desc:'プラントは増強され、より多くの水をきれいにして川へ返せるようになった。',
+  fact:'世界では多くの人が安全に管理された飲み水を使えません。浄水・下水インフラは基盤です。'},
+ {id:'c19_t2',icon:'🐠',name:'広がる海の森',tag:'nature',combo:['tech'],fx:{env:5,care:3,dur:2},variant:true,evolveFrom:'c19',
+  desc:'アマモとコンブの森が広がり、海の生きものと炭素の両方を抱えている。',
+  fact:'海草・海藻や干潟がたくわえる炭素は「ブルーカーボン」。各地で藻場再生が進んでいます。'},
+ {id:'c20_t2',icon:'🌾',name:'定着した施肥管理',tag:'nature',combo:['policy','tech'],fx:{care:3,load:2,dur:2},variant:true,evolveFrom:'c20',
+  desc:'ちょうどよい施肥が当たり前になり、畑と川の両方が健やかになった。',
+  fact:'まきすぎた窒素・リンは川や湖へ流れ、藻の大発生(富栄養化)を招きます。適正施肥はその入口を絞ります。'},
+ {id:'c21_t2',icon:'🌀',name:'広がる資源循環',tag:'tech',combo:['econ'],fx:{env:4,load:2,dur:2,life:3},variant:true,evolveFrom:'c21',
+  desc:'堆肥とガスへの仕組みが広がり、まちのごみと栄養が静かにめぐっている。',
+  fact:'有機物の発酵で得るバイオガスはエネルギーに、残りは肥料に。栄養とCO2を同時に循環させます。'},
+ {id:'c22_t2',icon:'❄️',name:'徹底したフロン対策',tag:'tech',combo:['policy'],fx:{env:5,load:3,dur:2},variant:true,evolveFrom:'c22',
+  desc:'回収の網は広がり、見逃されていたフロンも確実に処理されるようになった。',
+  fact:'一部のフロン類はオゾン層を壊し、強力な温室効果も持ちます。確実な回収・破壊が二重の対策になります。'},
+ {id:'c23_t2',icon:'🌳',name:'根づいた涼しいまち',tag:'citizen',combo:['tech'],fx:{env:4,life:4,dur:2},variant:true,evolveFrom:'c23',
+  desc:'木陰と風の道が増え、まちそのものが暑さに強くなってきた。',
+  fact:'緑陰や反射性の高い屋根は、都市のヒートアイランドをやわらげ、冷房のエネルギーも減らします。'},
+ {id:'c24_t2',icon:'🪸',name:'定着したサンゴ園',tag:'nature',combo:['citizen'],fx:{env:5,care:2,dur:2},variant:true,evolveFrom:'c24',
+  desc:'移植されたサンゴは根づき、海の熱帯雨林がふたたび色を取り戻しつつある。',
+  fact:'サンゴ礁は海の生きものの多くを支える「海の熱帯雨林」。高水温と酸性化が白化の大きな要因です。'},
+ {id:'c25_t2',icon:'🌿',name:'育った被覆作物',tag:'nature',combo:['citizen'],fx:{care:3,env:3,dur:2},variant:true,evolveFrom:'c25',
+  desc:'根が張った土は流れにくくなり、畑そのものが力を蓄えてきた。',
+  fact:'被覆作物(カバークロップ)は土の流出と栄養の流れ出しを抑え、土そのものを育てます。'},
+ {id:'c26_t2',icon:'🏠',name:'広がる断熱リフォーム',tag:'tech',combo:['citizen'],fx:{load:4,dur:0,life:-1},variant:true,evolveFrom:'c26',
+  desc:'断熱の効果はまち全体に広がり、光熱費と負荷をともに減らし続けている。',
+  fact:'住まいの断熱は冷暖房のエネルギーを大きく減らします。効果は長く続く「一度きりの投資」です。'},
+ {id:'c27_t2',icon:'🦢',name:'育った水辺の緩衝帯',tag:'nature',combo:['policy'],fx:{care:3,env:4,dur:2},variant:true,evolveFrom:'c27',
+  desc:'緩衝帯の草木は根を張り、より多くの栄養と泥を受け止めている。',
+  fact:'河畔の緩衝帯は栄養塩や土砂をこしとり、生きもののすみかにもなります。安価で効果的な自然の防波堤です。'},
+ {id:'c28_t2',icon:'🔧',name:'徹底したメタン対策',tag:'tech',combo:['policy'],fx:{load:4,dur:0},variant:true,evolveFrom:'c28',
+  desc:'見つけて塞ぐ仕組みが定着し、漏れそのものが起きにくくなってきた。',
+  fact:'メタンは短期間の温室効果がCO2より強い一方、漏れを止める対策は比較的すぐ効果が出ます。'},
+ {id:'r01_t2',icon:'🔁',name:'定着したごみゼロ設計',tag:'tech',combo:['econ','citizen'],fx:{load:3,care:2,dur:0,life:2},variant:true,evolveFrom:'r01',
+  desc:'捨てる前提を疑う設計が広がり、ごみそのものが出にくい製品が増えた。',
+  fact:'循環型のものづくりでは「廃棄物は設計の失敗」と考えます。使い終わりを最初から設計に織り込みます。'},
+ {id:'r02_t2',icon:'🌧️',name:'広がる水の再利用',tag:'tech',combo:['citizen'],fx:{env:4,care:3,dur:0},variant:true,evolveFrom:'r02',
+  desc:'雨水と再生水の仕組みがまちに広がり、水はさらに大切にめぐっている。',
+  fact:'再生水や雨水利用は乾燥地域を中心に普及。水を何度もめぐらせて使う発想です。'},
+ {id:'r03_t2',icon:'🌲',name:'育つ森と生きる経済',tag:'econ',combo:['nature'],fx:{care:3,dur:0,life:5},variant:true,evolveFrom:'r03',
+  desc:'森を守りながら稼ぐ会社が増え、保全と経済がともに育っている。',
+  fact:'森を守る調達(認証材など)は企業評価に直結する時代。保全と収益を両立させる試みが増えています。'},
+ {id:'r04_t2',icon:'🔌',name:'進化した電力網',tag:'tech',combo:['econ'],fx:{load:4,dur:0,life:4},variant:true,evolveFrom:'r04',
+  desc:'電力網はさらに賢くなり、無駄がほとんど生まれなくなってきた。',
+  fact:'スマートグリッドと蓄電池は、天候で変わる再エネの弱点を補う鍵。蓄電コストも大きく下がりました。'},
+ {id:'r05_t2',icon:'🐝',name:'広がる花の回廊',tag:'nature',combo:['citizen'],fx:{env:4,care:3,dur:0},variant:true,evolveFrom:'r05',
+  desc:'花の道はまちの隅々までつながり、羽音がさらに増えている。',
+  fact:'花壇や緑地の連なりは、花粉を運ぶ昆虫の「道」になります。私たちの食べ物の多くが彼らに支えられています。'},
+ {id:'r06_t2',icon:'🚆',name:'発達した公共交通',tag:'econ',combo:['citizen'],fx:{load:3,dur:0,life:3},variant:true,evolveFrom:'r06',
+  desc:'まちの動脈はさらに発達し、クルマに頼らない暮らしが根づいた。',
+  fact:'公共交通の充実したまちは、一人あたりのCO2排出が少ない傾向があります。'},
+ {id:'r07_t2',icon:'🛠️',name:'定着した修理文化',tag:'policy',combo:['tech'],fx:{load:3,care:2,dur:0,life:3},variant:true,evolveFrom:'r07',
+  desc:'直して使う権利が当たり前になり、ものを長く使う文化が根づいた。',
+  fact:'欧州などで「修理する権利」の法制化が進行。製品の寿命を延ばすことは最良のごみ対策のひとつです。'},
+ {id:'r08_t2',icon:'🏦',name:'広がる自然資本バンク',tag:'econ',combo:['policy'],fx:{care:3,dur:0,life:4},variant:true,evolveFrom:'r08',
+  desc:'自然を資本として扱う考えが広がり、守ることの価値がさらに高まった。',
+  fact:'自然を経営や会計に組み込む枠組みが世界で広がり、保全を「コスト」から「価値」へと変えつつあります。'},
+ {id:'r09_t2',icon:'🛩️',name:'進化した精密農業',tag:'tech',combo:['econ'],fx:{care:3,load:2,dur:0},variant:true,evolveFrom:'r09',
+  desc:'データに基づく農業がさらに精密になり、無駄がほとんどなくなった。',
+  fact:'土壌や作物のデータに基づく施肥は、栄養の流出とコストを同時に減らせます。'},
+ {id:'r10_t2',icon:'🌍',name:'広がる国際協力',tag:'policy',combo:['econ'],fx:{load:3,care:2,dur:0,life:3},variant:true,evolveFrom:'r10',
+  desc:'基金の支えは広がり、より多くの国がフロンを止められるようになった。',
+  fact:'オゾン層保護では、途上国の転換を支える国際的な資金の仕組みが成功の鍵になりました。'},
+ {id:'r11_t2',icon:'🌊',name:'育つ海藻養殖',tag:'econ',combo:['nature'],fx:{env:4,care:2,dur:0,life:3},variant:true,evolveFrom:'r11',
+  desc:'海藻養殖が広がり、海の森と浜の仕事がともに育っている。',
+  fact:'海藻の養殖は食料・飼料・素材になり、育つ過程でCO2や栄養塩を吸収します。'},
+ {id:'r12_t2',icon:'🦌',name:'育った生きものの回廊',tag:'nature',combo:['policy'],fx:{care:4,dur:0},variant:true,evolveFrom:'r12',
+  desc:'緑の橋は育ち、より多くの生きものが行き来できるようになった。',
+  fact:'生態回廊(コリドー)は分断された生息地をつなぎ、種の行き来と遺伝的な健康を保ちます。'},
+ {id:'r13_t2',icon:'⚓',name:'発達したゼロエミ港湾',tag:'tech',combo:['econ'],fx:{load:3,env:3,dur:0},variant:true,evolveFrom:'r13',
+  desc:'電気で動く港はさらに広がり、沿岸の空気と水をいっそう守っている。',
+  fact:'港の電動化や陸上電源は、沿岸の大気汚染とCO2をまとめて減らします。'},
+ {id:'r14_t2',icon:'🌧️',name:'広がる雨庭',tag:'nature',combo:['citizen'],fx:{env:4,care:3,dur:0},variant:true,evolveFrom:'r14',
+  desc:'雨庭と浸透の仕組みが広がり、まち全体がスポンジのようになってきた。',
+  fact:'雨庭や透水性舗装などのグリーンインフラは、洪水をやわらげ地下水を養い、水をきれいにします。'},
+ /* ---- 教訓カード(ミッション失敗時に手に入る) ---- */
+ {id:'l01',icon:'📔',name:'学びの記録',tag:'citizen',combo:[],fx:{care:2,dur:0},lesson:true,
+  desc:'うまくいかなかった年の記録が、次の一手を静かに照らしてくれる。',
+  fact:'失敗の記録を残し振り返ることは、次の対策の精度を上げる基本です。'},
+ {id:'l02',icon:'🧭',name:'見直した仕組み',tag:'tech',combo:[],fx:{load:2,dur:0},lesson:true,
+  desc:'つまずいた原因を見直したことで、むだのない仕組みに変わった。',
+  fact:'うまくいかなかった施策を検証し改善する「振り返り」は、対策の効果を大きく左右します。'},
+ {id:'l03',icon:'🤲',name:'支え合うご近所',tag:'citizen',combo:[],fx:{life:3},lesson:true,
+  desc:'一度つまずいた経験が、まちの人と人とのつながりを強くした。',
+  fact:'困難を経験したコミュニティほど、支え合いの結びつきが強まることが知られています。'},
+ {id:'l04',icon:'🔍',name:'早期発見の目',tag:'policy',combo:[],fx:{env:3},lesson:true,
+  desc:'見逃していた予兆に気づけるようになった。次はもっと早く動ける。',
+  fact:'早期警戒の仕組みは、被害が大きくなる前に対策を打つための重要な鍵です。'},
+ {id:'l05',icon:'📈',name:'積み重ねた経験',tag:'econ',combo:[],fx:{care:1,load:1,dur:0},lesson:true,
+  desc:'一度の失敗が、地道な積み重ねの大切さを教えてくれた。',
+  fact:'試行錯誤を重ねた組織ほど、長期的には安定した成果を出しやすいと言われます。'},
+ /* ---- チェインカード(スキルツリーで入手。年を消費せず、続けてもう1枚出せる) ---- */
+ {id:'ch01',icon:'🔗',name:'つなぎの手',tag:'citizen',combo:[],fx:{care:2},chain:true,
+  desc:'誰かが差し出した手が、次の一手への時間を稼いでくれた。年を消費せず、続けてもう1枚出せる。',
+  fact:'小さな協力が積み重なると、ひとりでは出せない速さで物事が進みます。'},
+ {id:'ch02',icon:'🔭',name:'見通す力',tag:'tech',combo:[],fx:{env:2},chain:true,
+  desc:'先を見通す力が、今年のうちにもう一手打つ余地を生んだ。年を消費せず、続けてもう1枚出せる。',
+  fact:'早めの兆候把握は、対応にかけられる時間そのものを増やしてくれます。'},
+];
+/* カード進化：EVOLUTIONS[基本id] = [{at:達成傷数, id:進化後id}, ...]（atは昇順） */
+const EVOLUTIONS={
+ c01:[{at:6,id:'c01_t2'}], c02:[{at:6,id:'c02_t2'}], c03:[{at:6,id:'c03_t2'}], c04:[{at:6,id:'c04_t2'}],
+ c05:[{at:6,id:'c05_t2'}], c06:[{at:6,id:'c06_t2'}], c07:[{at:6,id:'c07_t2'}], c08:[{at:6,id:'c08_t2'}],
+ c09:[{at:6,id:'c09_t2'}], c10:[{at:6,id:'c10_t2'}], c11:[{at:6,id:'c11_t2'}], c12:[{at:6,id:'c12_t2'}],
+ c13:[{at:6,id:'c13_t2'}], c14:[{at:6,id:'c14_t2'}], c15:[{at:6,id:'c15_t2'}], c16:[{at:6,id:'c16_t2'}],
+ c17:[{at:6,id:'c17_t2'}], c18:[{at:6,id:'c18_t2'}], c19:[{at:6,id:'c19_t2'}], c20:[{at:6,id:'c20_t2'}],
+ c21:[{at:6,id:'c21_t2'}], c22:[{at:6,id:'c22_t2'}], c23:[{at:6,id:'c23_t2'}], c24:[{at:6,id:'c24_t2'}],
+ c25:[{at:6,id:'c25_t2'}], c26:[{at:6,id:'c26_t2'}], c27:[{at:6,id:'c27_t2'}], c28:[{at:6,id:'c28_t2'}],
+ r01:[{at:6,id:'r01_t2'}], r02:[{at:6,id:'r02_t2'}], r03:[{at:6,id:'r03_t2'}], r04:[{at:6,id:'r04_t2'}],
+ r05:[{at:6,id:'r05_t2'}], r06:[{at:6,id:'r06_t2'}], r07:[{at:6,id:'r07_t2'}], r08:[{at:6,id:'r08_t2'}],
+ r09:[{at:6,id:'r09_t2'}], r10:[{at:6,id:'r10_t2'}], r11:[{at:6,id:'r11_t2'}], r12:[{at:6,id:'r12_t2'}],
+ r13:[{at:6,id:'r13_t2'}], r14:[{at:6,id:'r14_t2'}],
+};
+function tierCardId(baseId){
+  const chain=EVOLUTIONS[baseId];if(!chain)return baseId;
+  const n=(typeof totalCleared==='function')?totalCleared():0;
+  let cur=baseId;
+  for(const step of chain){if(n>=step.at)cur=step.id;}
+  return cur;
+}
+const cardById=id=>{
+  const tid=tierCardId(id);
+  return CARDS.find(c=>c.id===tid)||CARDS.find(c=>c.id===id);
+};
+const REWARD_POOL=CARDS.filter(c=>c.reward).map(c=>c.id);
+const LESSON_POOL=CARDS.filter(c=>c.lesson).map(c=>c.id);
+const CHAIN_POOL=CARDS.filter(c=>c.chain).map(c=>c.id);
+
+/* =====================================================
+   LETTERS — 物語の骨格（第1幕:導入 / 第3幕:回収）
+   各ミッションの ps が第1〜2幕を担う
+===================================================== */
+const LETTER_FIRST={
+ lines:[
+  {t:'　拝啓。この手紙を読んでいるあなたへ。'},
+  {t:'　突然の荷物を、どうか許してください。'},
+  {t:'　同封したのは、ひとつの星です。あなたの手のひらにのる、ちいさな地球。'},
+  {t:'　これは玩具ではありません。ほんとうに、傷ついています。'},
+  {t:'　海はごみで濁り、空はかすみ、水は細り、生きものが消えていく。'},
+  {t:'　でも、まだ間に合います。あなたの手で、ひとつずつ治せるのです。'},
+  {t:'　地球にふれて、傷をしらべてください。カードを切り、めぐりを取り戻して。'},
+  {t:'　私が誰なのか、なぜこれをあなたに託すのか——それは、最後の傷がふさがったときに。',w:true},
+  {t:'　どうか、この星を、あきらめないで。'},
+ ],
+ sign:'　　　　　　　　　　差出人より'
+};
+
+const LETTER_FINAL={
+ lines:[
+  {t:'　最後の傷が、ふさがりましたね。'},
+  {t:'　約束どおり、打ち明けます。私が誰なのかを。'},
+  {t:'　——私は、あなたの星の、百年あとの住人です。'},
+  {t:'　あなたのいる時代を、私たちは「分岐点」と呼んでいます。'},
+  {t:'　あの頃、間に合わなかった世界線もありました。海は静まり、空は重く、多くが失われた未来。'},
+  {t:'　私たちは、その未来からこの小さな星を、時をさかのぼって送りました。あなたに。'},
+  {t:'　なぜ、あなたに？　特別な力があったからではありません。'},
+  {t:'　ただ、あなたが「あきらめなかった」から。それだけが、未来を選び直す唯一の力でした。'},
+  {t:'　窓の外を見ています。青い空、澄んだ海、うるさいほどの鳥の声。'},
+  {t:'　この風景は、あなたがくれたものです。ありがとう。',w:true},
+  {t:'　さあ、手のひらの星を、そっと空に還してください。'},
+  {t:'　——ほんものの地球は、いま、あなたの足の下でまわっています。'},
+ ],
+ sign:'　　　　　　百年あとの、あなたの隣人より'
+};
+/* ---------- 分岐エンディング(プレイスタイルの集計で1文が変わる) ---------- */
+const STYLE_LINE={
+ people:'　あなたは、ひとりひとりの手と、まちでの約束を、なにより信じました。人と人とが結び直す力を、私たちは今も暮らしのなかで感じています。',
+ nature:'　あなたは、森や海や、名もない生きものたちに、時間を返しました。ゆっくり回復する力を、辛抱づよく信じてくれました。',
+ techecon:'　あなたは、知恵と仕組みを積み重ねました。技術と経済が、壊すためだけでなく治すためにも使えることを、証明してくれました。',
+ balanced:'　あなたは、ひとつのやり方に頼りませんでした。いろんな手を、いろんな場所で。それが、この星のしなやかさになりました。'
+};
+const STYLE_NAME={people:'人とつながる力',nature:'自然に寄り添う力',techecon:'知恵と仕組みの力',balanced:'しなやかな歩み'};
+function dominantStyle(){
+  const t=S.tagTally||{};
+  const people=(t.citizen||0)+(t.policy||0);
+  const nature=(t.nature||0);
+  const techecon=(t.tech||0)+(t.econ||0);
+  const vals=[['people',people],['nature',nature],['techecon',techecon]].sort((a,b)=>b[1]-a[1]);
+  if(vals[0][1]===0)return 'balanced';
+  if((vals[0][1]-vals[1][1])/vals[0][1]<0.15)return 'balanced';
+  return vals[0][0];
+}
+function getFinalLetter(){
+  const style=dominantStyle();
+  const lines=LETTER_FINAL.lines.slice();
+  let insertAt=3;
+  if(S.flags.hiroIntro){
+    lines.splice(insertAt,0,{t:'　あなたが「ヒロ」と呼んで、迷うたびに相談していた声——あれも、私です。'});
+    insertAt++;
+  }
+  lines.splice(insertAt+5,0,{t:STYLE_LINE[style]});
+  return {lines,sign:S.flags.hiroIntro?'　　　　　　百年あとの、あなたの隣人——ヒロより':LETTER_FINAL.sign,style};
+}
+
+/* =====================================================
+   MISSIONS — 18件（PB 9ドメイン × 前編/後編）
+   requires: {all:[...], any:[...], count:{of:[...],n}}
+   act: 1=前編（穏やかな追伸） 2=後編（トーン変化） 3=最終
+===================================================== */
+const MISSIONS_FRONT=[
+ /* ---------- 初期解放（3つの入口） ---------- */
+ {id:'novel1',domain:'novel',part:1,icon:'🥤',name:'海とまちのごみ',axis:'新規化学物質 — 海洋プラスチック',act:1,
+  requires:{},unlockReason:'',
+  desc:'ペットボトルとレジ袋が川を下り、海に集まっている。便利なくらしの裏で、この星の海が静かに濁っていく。まずは、いちばん身近な傷から。',
+  envStart:32,envTarget:60,lifeStart:60,turns:8,baseLoad:6,baseCare:2,
+  deck:['c01','c09','c16','c05','c06','c11','c04','c01','c09','c16','c06','c05'],
+  events:[
+   {turn:3,icon:'🌀',name:'台風の置きみやげ',text:'台風のあと、浜が漂着ごみで埋まった。',fx:{env:-6},
+    fact:'海のプラごみの多くは陸から。災害は一度に大量の漂着ごみを生みます。'},
+   {turn:6,icon:'🐢',name:'一枚の写真',text:'ごみに絡まるウミガメの写真が世界に拡散。人々の意識が変わりはじめた。',fx:{care:2,dur:2},
+    fact:'1枚の写真が世論を動かすことがあります。プラごみ問題は世界的な関心事になりました。'},
+  ],
+  dilemma:{turn:4,title:'夜の川辺で',
+   text:'上流の工場が、夜にこっそり廃棄物を流しているのを見てしまった。さて、どうする？',
+   opts:[
+    {name:'📢 証拠を集めて公表する',fxText:'負荷-2(2年) ／ くらし-3',fx:{load:2,dur:2,life:-3},
+     after:'報道が広がり、業界全体の目が変わった。摘発は痛みも伴ったが——。'},
+    {name:'🤝 工場と一緒に改善策を探す',fxText:'保全+1(ずっと) ／ くらし+2',fx:{care:1,dur:0,life:2},
+     after:'時間はかかったが、工場は胸を張って変わった。まちに味方がひとり増えた。'},
+   ]},
+  learn:'海洋プラごみの多くは、陸から流れ込んだもの。「海の問題」の入口は、私たちの毎日のごみ箱にあります。レジ袋有料化のような小さなルールも、社会の意識を変える一歩になりました。',
+  ps:'追伸　あなたの星から届く風が、少しだけ軽くなった気がします。\n浜辺で、貝がらを拾えました。ごみではなく。'},
+
+ {id:'aerosol1',domain:'aerosol',part:1,icon:'🌫️',name:'かすむ空',axis:'大気エアロゾル — スモッグ',act:1,
+  requires:{},unlockReason:'',
+  desc:'排気とばい煙の細かな粒が、空をかすませ、肺の奥にまで届く。深呼吸が、ためらわれる日がある。',
+  envStart:30,envTarget:60,lifeStart:58,turns:8,baseLoad:7,baseCare:2,
+  deck:['c11','c14','c03','c04','c16','c05','c12','c23','c11','c14','c06','c03'],
+  events:[
+   {turn:3,icon:'😷',name:'スモッグ注意報',text:'まちが灰色に沈み、外遊びが中止になった。',fx:{env:-4,life:-4},
+    fact:'PM2.5は非常に細かく、肺の奥まで届いて健康に影響します。'},
+   {turn:6,icon:'🚌',name:'ノーカーデー',text:'まちぐるみの社会実験がはじまった。',fx:{boostTag:'citizen'},
+    fact:'一人の乗り換えは小さくても、まち全体なら空気は目に見えて変わります。'},
+  ],
+  dilemma:{turn:4,title:'古いバスの去就',
+   text:'排気の多い古いバス。買い替えは高いが、修理して使い続ければ煙は出続ける。',
+   opts:[
+    {name:'🩹 修理して使い続ける',fxText:'くらし+3 ／ 環境-3',fx:{life:3,env:-3},
+     after:'出費は抑えられた。停留所の空気は、今日も少し重い。'},
+    {name:'🔋 電動バスに入れ替える',fxText:'負荷-2(ずっと) ／ くらし-4',fx:{load:2,dur:0,life:-4},
+     after:'財布は痛んだ。だが朝の通りが、ふっと静かになった。'},
+   ]},
+  learn:'大気汚染は世界で多くの早期死亡の要因とされます。エネルギーと交通のクリーン化が対策の柱。空気は、いちばん平等に配られる環境です。',
+  ps:'追伸　こちらでは今朝、遠くの山の稜線が見えました。\n深呼吸を、ためらわない空です。'},
+
+ {id:'freshwater1',domain:'freshwater',part:1,icon:'🚰',name:'蛇口のむこう側',axis:'淡水の変化 — 渇水と水質',act:1,
+  requires:{},unlockReason:'',
+  desc:'蛇口をひねれば出てくる水。その源の川と地下水が、汚れと渇きで細っている。あたりまえは、あたりまえじゃなかった。',
+  envStart:28,envTarget:60,lifeStart:58,turns:8,baseLoad:7,baseCare:2,
+  deck:['c17','c18','c12','c05','c27','c13','c04','c16','c17','c18','c09','c14'],
+  events:[
+   {turn:2,icon:'🌵',name:'記録的な渇水',text:'雨が降らない。ダムの底が見えはじめた。',fx:{env:-5,life:-3},
+    fact:'気候変動は「水の危機」として現れます。渇水と豪雨、両極端が増えるのが特徴です。'},
+   {turn:5,icon:'⛰️',name:'水源の森',text:'「森が水を育てる」——上流の森づくりに注目が集まる。',fx:{boostTag:'nature'},
+    fact:'森の土はスポンジのように雨を蓄え、ゆっくり川へ返します。水道局が森を育てる自治体もあります。'},
+  ],
+  dilemma:{turn:4,title:'新しい浄水場',
+   text:'まちに新しい浄水場をつくることに。建設地の候補は2つある。',
+   opts:[
+    {name:'💰 安くて早い、川ぞいの平地',fxText:'くらし+4 ／ 環境-4',fx:{life:4,env:-4},
+     after:'コストは抑えられた。ただ、川辺の湿地がひとつ姿を消した。'},
+    {name:'🌲 水源の森を守れる高台',fxText:'保全+2(2年) ／ くらし-3',fx:{care:2,dur:2,life:-3},
+     after:'予算は膨らんだが、森と水源はそのまま残った。未来への貯金だと思おう。'},
+   ]},
+  learn:'世界では多くの人が安全に管理された飲み水を使えません。水を守ることは、森を守ることと繋がっています。蛇口の向こうには、流域まるごとの物語があります。',
+  ps:'追伸　こちらの水道から、消毒とサビの匂いが消えました。\n子どもたちが、水たまりで遊んでいます。ためらいもなく。'},
+
+ /* ---------- DAGで解放される前編 ---------- */
+ {id:'ocean1',domain:'ocean',part:1,icon:'🐚',name:'とけていく貝がら',axis:'海洋酸性化 — もうひとつのCO2問題',act:1,
+  requires:{any:['novel1']},unlockReason:'海のプラごみを追ううち、海そのものの異変に気づいた——貝が、うまく育たない。',
+  desc:'海がCO2を吸いすぎて、少しずつ「酸っぱく」変わっている。貝もサンゴも、殻をつくれなくなっていく。',
+  envStart:27,envTarget:60,lifeStart:56,turns:8,baseLoad:7,baseCare:2,
+  deck:['c19','c07','c24','c13','c05','c16','c19','c24','c09','c04','c08','c11'],
+  events:[
+   {turn:3,icon:'🦪',name:'養殖場の異変',text:'稚貝が育たない。浜の家業が揺れている。',fx:{env:-5,life:-3},
+    fact:'酸性化した海では、貝の赤ちゃんが殻をつくりにくくなります。海洋酸性化は「もうひとつのCO2問題」と呼ばれます。'},
+   {turn:6,icon:'🐠',name:'海の森の発見',text:'アマモ場の回復力に注目が集まる。',fx:{boostTag:'nature'},
+    fact:'海草の茂みは稚魚のゆりかごであり、CO2の貯金箱(ブルーカーボン)でもあります。'},
+  ],
+  dilemma:{turn:4,title:'埋め立ての計画',
+   text:'港を広げれば仕事が増える。だが候補地は、海の生きもののゆりかご——藻場の真上だ。',
+   opts:[
+    {name:'🏗️ 港を広げる',fxText:'くらし+4 ／ 環境-4',fx:{life:4,env:-4},
+     after:'港は大きくなった。藻場の緑は、半分になった。'},
+    {name:'🌿 藻場を残して設計し直す',fxText:'保全+2(2年) ／ くらし-3',fx:{care:2,dur:2,life:-3},
+     after:'工事は遅れた。だが「海のゆりかご」は守られた。'},
+   ]},
+  learn:'海は人が出したCO2のかなりの部分と、温暖化の熱の大半を引き受けてくれています。その代償が酸性化と海洋熱波。海を守る根本対策は、大気のCO2を減らすことです。',
+  ps:'追伸　浜で、子どもが桜貝を拾っていました。\n薄くて、固くて、ちゃんと桜色でした。\n……ひとつだけ。こちらには、まだ「泳げない海」も残っています。'},
+
+ {id:'biogeo1',domain:'biogeo',part:1,icon:'💧',name:'みどり色の湖',axis:'窒素・リン循環 — 富栄養化',act:1,
+  requires:{any:['novel1','freshwater1']},unlockReason:'川の汚れをたどると、上流の畑に行き着いた。多すぎる栄養が、水をむしばんでいた。',
+  desc:'畑にまいた肥料の栄養が川へ流れ、湖でアオコを爆発させる。水面が絵の具のような緑に覆われ、魚が息をひそめる。',
+  envStart:30,envTarget:60,lifeStart:58,turns:8,baseLoad:7,baseCare:2,
+  deck:['c20','c27','c25','c21','c18','c05','c13','c16','c20','c27','c12','c14'],
+  events:[
+   {turn:3,icon:'🟢',name:'アオコの大発生',text:'湖一面が緑に染まり、水道の取水が止まった。',fx:{env:-5,life:-3},
+    fact:'栄養過多で植物プランクトンが異常繁殖する富栄養化。分解時に酸素が奪われ、魚が死ぬ「デッドゾーン」を生みます。'},
+   {turn:6,icon:'🚜',name:'農家との対話',text:'「肥料は減らせる」——実証データが農家を動かした。',fx:{boostTag:'nature'},
+    fact:'土壌診断に基づく適正施肥は、収量を保ちながら栄養の流出とコストを減らせます。'},
+  ],
+  dilemma:{turn:4,title:'排水路のゆくえ',
+   text:'畑の排水を、いちばん近い川へ最短で流す計画。工費は安いが、栄養もそのまま川へ入る。',
+   opts:[
+    {name:'💰 最短で川へ流す',fxText:'くらし+4 ／ 環境-4',fx:{life:4,env:-4},
+     after:'水はけは良くなった。下流の湖が、また少し緑を増した。'},
+    {name:'🦆 遊水地と湿地を経由させる',fxText:'保全+2(2年) ／ くらし-3',fx:{care:2,dur:2,life:-3},
+     after:'工期は延びたが、湿地が栄養をこしとってくれる。渡り鳥まで戻ってきた。'},
+   ]},
+  learn:'窒素とリンは作物に欠かせない栄養ですが、多すぎると川・湖・海を「窒息」させます。人類はいま自然の何倍もの窒素を使っており、これも地球の限界(プラネタリーバウンダリー)を超えた指標のひとつです。',
+  ps:'追伸　こちらの湖が、そこの底まで見えるようになりました。\nおじいさんが、昔ここで泳いだ話をしてくれます。'},
+
+ {id:'climate1',domain:'climate',part:1,icon:'🌡️',name:'暴走する気温',axis:'気候変動 — 猛暑と豪雨',act:1,
+  requires:{any:['aerosol1']},unlockReason:'空気の汚れを追ううち、同じ煙突からCO2も出ていた。空気と気候は、根が同じだった。',
+  desc:'夏はより暑く、雨はより激しく。CO2はためこまれ、放っておくと負荷は年々ふくらんでいく。早い一手ほど、重い。',
+  envStart:33,envTarget:64,lifeStart:62,turns:9,baseLoad:6,baseCare:2,loadGrow:1,
+  deck:['c03','c14','c08','c04','c11','c26','c12','c28','c03','c05','c16','c23','c14'],
+  events:[
+   {turn:3,icon:'🥵',name:'観測史上の猛暑',text:'40℃の夜。電力はひっ迫し、まちが疲れていく。',fx:{env:-4,life:-5},
+    fact:'猛暑は健康・農業・電力すべてを直撃します。気候変動は遠い話ではなく「くらしの問題」です。'},
+   {turn:5,icon:'🌐',name:'世界会議の夜',text:'各国が机を囲み、約束を交わした。',fx:{boostTag:'policy'},
+    fact:'気候の国際会議には多くの国が参加します。世界が同じ方向を向くことが対策の土台です。'},
+   {turn:7,icon:'⛈️',name:'線状降水帯',text:'空が抜けたような雨。川があふれた。',fx:{env:-5},
+    fact:'温暖化で大気中の水蒸気が増え、豪雨は強く・頻繁に。被害を減らす「適応策」も対策の柱です。'},
+  ],
+  dilemma:{turn:2,title:'電気代のうねり',
+   text:'燃料の高騰で電気代が急上昇。家計から悲鳴が上がっている。',
+   opts:[
+    {name:'💸 補助金で当面の家計を守る',fxText:'くらし+5 ／ 負荷+2(2年)',fx:{life:5,load:-2,dur:2},
+     after:'家計は助かった。ただ、古い火力が延命され、煙突は今日も動いている。'},
+    {name:'🔧 省エネ改修に補助を集中する',fxText:'負荷-2(ずっと) ／ くらし-3',fx:{load:2,dur:0,life:-3},
+     after:'すぐには楽にならない。でも断熱された家は、来年もその先も光熱費を減らし続ける。'},
+   ]},
+  learn:'気候変動の怖さは「放置すると加速する」こと。氷が溶けると熱を反射できずさらに溶ける——これがフィードバック。だから早い対策ほど効きます。世界が急いで動くのは、この加速を止めるためです。',
+  ps:'追伸　今年、こちらでは季節が「四つ」ありました。\nあなたには当然でも、私たちには小さな奇跡です。\n……差出人のこと、いつか話します。最後の傷が、ふさがったら。'},
+
+ {id:'ozone1',domain:'ozone',part:1,icon:'🕳️',name:'空にあいた穴',axis:'成層圏オゾン — フロン',act:1,
+  requires:{any:['aerosol1']},unlockReason:'大気の化学を調べるうち、空の高いところに開いた「穴」の記録が出てきた。',
+  desc:'冷蔵庫やスプレーに使われた化学物質が、空の高いところでオゾンの膜を壊している。太陽の紫外線を防ぐ、見えない傘に穴があいた。',
+  envStart:29,envTarget:60,lifeStart:60,turns:8,baseLoad:6,baseCare:2,
+  deck:['c22','c13','c04','c14','c16','c05','c12','c22','c13','c06','c11','c14'],
+  events:[
+   {turn:3,icon:'☀️',name:'紫外線警報',text:'日ざしが肌を刺す。屋外の作業に制限がかかった。',fx:{env:-4,life:-3},
+    fact:'オゾン層が薄くなると有害な紫外線が地表に届き、皮膚や目、生態系に影響します。'},
+   {turn:6,icon:'🤝',name:'議定書の追い風',text:'国際的な取り決めが各国を後押しする。',fx:{boostTag:'policy'},
+    fact:'モントリオール議定書は、オゾン層を壊す物質を世界で段階的に廃止する取り決めです。'},
+  ],
+  dilemma:{turn:4,title:'古い冷媒の山',
+   text:'廃棄される冷蔵庫やエアコンが山積み。中のガスを抜くのは手間もお金もかかる。',
+   opts:[
+    {name:'🗑️ そのまま解体して処分する',fxText:'くらし+3 ／ 環境-4',fx:{life:3,env:-4},
+     after:'早く片づいた。だが見えないガスが、そっと空へ逃げていった。'},
+    {name:'❄️ ガスを回収してから処理する',fxText:'負荷-2(2年) ／ くらし-3',fx:{load:2,dur:2,life:-3},
+     after:'ひと手間かかった。けれど空の傘に、これ以上の穴はあけずにすんだ。'},
+   ]},
+  learn:'オゾン層の物語は、人類の数少ない「はっきりした成功例」。世界が協力して原因物質を止めた結果、オゾン層は今世紀中の回復が見込まれています。「間に合った」経験は、気候変動への希望でもあります。',
+  ps:'追伸　こちらの夏、日傘なしで歩ける日が増えました。\n「昔は空に穴があったんだよ」と話すと、子どもは信じません。'},
+
+ {id:'land1',domain:'land',part:1,icon:'🌳',name:'森の声がきこえる',axis:'土地利用の変化 — 森林伐採',act:1,
+  requires:{any:['freshwater1']},unlockReason:'水源をたどって上流へ登ると、育てるはずの森が切り拓かれていた。',
+  desc:'畑と資源のために森が切り拓かれ、生きものたちが黙って姿を消していく。森が減れば、CO2を吸う力も、水を育てる力も失われる。',
+  envStart:25,envTarget:60,lifeStart:55,turns:8,baseLoad:8,baseCare:2,
+  deck:['c02','c10','c15','c05','c04','c08','c13','c16','c10','c02','c12','c14'],
+  events:[
+   {turn:2,icon:'🔥',name:'森が燃えている',text:'乾ききった森に、火が走った。',fx:{env:-7},
+    fact:'気候変動で森林火災は増加傾向。森が燃えるとCO2が放出され、さらに温暖化が進む悪循環が起きます。'},
+   {turn:5,icon:'📜',name:'違法伐採の摘発',text:'国際協力で違法伐採ルートが摘発された。',fx:{load:2,dur:2},
+    fact:'木材の産地をたどれる認証は、違法伐採への対抗策として広がっています。'},
+  ],
+  dilemma:{turn:4,title:'一本道の計画',
+   text:'森を貫く新しい道路の計画が持ち上がった。物流は便利になるが、森は分断される。',
+   opts:[
+    {name:'🛣️ 計画どおり最短ルートで通す',fxText:'くらし+5 ／ 環境-5',fx:{life:5,env:-5},
+     after:'物流は速くなった。夜、道路を渡れない鹿の親子を見た、という話を聞いた。'},
+    {name:'🦌 遠回りでも森を避けて通す',fxText:'保全+2(2年) ／ くらし-3',fx:{care:2,dur:2,life:-3},
+     after:'工期は延びた。けれど森の上に「けものの橋」が架かり、まちの自慢になった。'},
+   ]},
+  learn:'森林は陸の生物種の多くがくらす家。森を失うと、食料・薬・きれいな水——人が自然から受け取る恵み(生態系サービス)も失われます。守り方の鍵は、地域のくらしとの両立です。',
+  ps:'追伸　窓の外の、灰色だった丘に、緑が点々と灯りはじめました。\n今朝、名前も知らない鳥の声で目が覚めました。'},
+
+ {id:'biosphere1',domain:'biosphere',part:1,icon:'🦋',name:'消えた蝶',axis:'生物多様性 — 在来種の危機',act:1,
+  requires:{any:['land1']},unlockReason:'森を守るうち、その森からいくつもの生きものが静かに消えていたことに気づいた。',
+  desc:'ありふれていたはずの蝶や蛙が、いつの間にか見当たらない。生息地の消失と外来種が、いのちの網の目をほどいていく。',
+  envStart:28,envTarget:60,lifeStart:56,turns:8,baseLoad:7,baseCare:2,
+  deck:['c10','c02','c15','c05','c25','c13','c16','c04','c10','c15','c12','c08'],
+  events:[
+   {turn:3,icon:'🐸',name:'沈黙の池',text:'かつて賑わった池から、蛙の声が消えた。',fx:{env:-5,life:-2},
+    fact:'両生類は環境の変化に敏感な「炭鉱のカナリア」。その減少は生態系の異変を教えてくれます。'},
+   {turn:6,icon:'🌸',name:'市民科学の力',text:'まちの人が生きものの記録を持ち寄りはじめた。',fx:{boostTag:'citizen'},
+    fact:'誰もが観察データを集める「市民科学」は、広い地域の生きものの変化を捉える大きな力になります。'},
+  ],
+  dilemma:{turn:4,title:'空き地の使い道',
+   text:'まちなかの空き地。駐車場にすれば収入になる。原っぱのまま残せば、小さな生きものの避難所になる。',
+   opts:[
+    {name:'🅿️ 駐車場として活用する',fxText:'くらし+4 ／ 環境-3',fx:{life:4,env:-3},
+     after:'まちの財政は潤った。虫たちの居場所が、また一つ舗装された。'},
+    {name:'🌾 原っぱのビオトープにする',fxText:'保全+2(2年) ／ くらし-2',fx:{care:2,dur:2,life:-2},
+     after:'収入は逃した。だが夏、子どもたちが虫あみを持って集まる場所になった。'},
+   ]},
+  learn:'生物多様性は「種の数」だけでなく、生きもの同士のつながりそのもの。花粉を運ぶ虫、土をつくる微生物——彼らは私たちの食と暮らしを無償で支えています。一種の消失は、見えない糸を一本ずつ切っていきます。',
+  ps:'追伸　庭に、図鑑でしか見たことのない蝶が来ました。\n名前を調べるのに、半日かかりました。しあわせな半日でした。'},
+];
+
+const MISSIONS_BACK=[
+ {id:'novel2',domain:'novel',part:2,icon:'🔄',name:'めぐる資源のつくり方',axis:'新規化学物質 — サーキュラーデザイン',act:2,
+  requires:{all:['novel1'],any:['ocean1','biogeo1']},
+  unlockReason:'ごみを拾いつづけて気づいた。蛇口を閉めないかぎり、床の水は拭ききれない——つくり方そのものを変えよう。',
+  desc:'応急処置では追いつかない。傷の根は「つくって、つかって、すてる」一方通行の流れそのもの。環境も、くらしも、どちらも取り戻す。',
+  envStart:36,envTarget:66,lifeStart:52,lifeTarget:58,turns:9,baseLoad:7,baseCare:3,
+  deck:['c06','c08','c14','c16','c01','c21','c13','c05','c11','c12','c08','c06','c16','c14'],
+  events:[
+   {turn:3,icon:'📉',name:'冷えこむ景気',text:'不況の風。「環境より明日の生活だ」の声が強まる。',fx:{life:-6},
+    fact:'不景気には環境対策の優先度が下がりがち。だから「環境対策が経済を強くする」仕組みが要ります。'},
+   {turn:6,icon:'🏙️',name:'循環都市宣言',text:'まちが「ごみのない都市」を宣言した。',fx:{boostTag:'econ'},
+    fact:'循環経済を都市戦略に据えるまちが世界に登場。ごみを資源に変える産業が育っています。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：使い捨ての誘惑',text:'安さと便利さが、また牙を剥く。『やっぱり使い捨てが早い』——澱がささやく。',fx:{env:-5},
+    fact:'循環型のしくみが定着するまでは、便利な使い捨てへの揺り戻しが常に起こり得ます。'},
+  ]},
+  dilemma:{turn:5,title:'閉店セールの山',
+   text:'大型店の撤退で、売れ残りの山が出た。「全部あげるから引き取って」と言われている。',
+   opts:[
+    {name:'🗑️ 処分場でまとめて処理する',fxText:'くらし+3 ／ 環境-4',fx:{life:3,env:-4},
+     after:'早くて安かった。埋立地の残り年数が、また少し縮んだ。'},
+    {name:'🎪 リユース市を開いて配り直す',fxText:'環境+4 ／ 保全+1(2年)',fx:{env:4,care:1,dur:2},
+     after:'広場は蚤の市のように賑わった。「捨てる」以外の出口が、まちに一本通った。'},
+   ]},
+  learn:'「つくる→つかう→すてる」から、資源がめぐる循環型社会へ。環境・社会・経済は別々の問題ではなく、重なり合ったひとつのシステム。つながり全体を見てバランスを取る力こそ、現実でいちばん必要な力です。',
+  ps:'追伸　こちらでは、あなたのその選択を「分岐点」と呼んでいます。\n歴史の教科書に、あなたのいる年が載っているのです。\n……名前は、まだ伏せられていますが。'},
+
+ {id:'aerosol2',domain:'aerosol',part:2,icon:'🚈',name:'澄んだ空の交通網',axis:'大気エアロゾル — クリーン交通',act:2,
+  requires:{all:['aerosol1'],any:['climate1','ozone1']},
+  unlockReason:'スモッグを一度晴らしても、また濁る。空気を「濁らせない仕組み」へ——交通そのものを変えるときだ。',
+  desc:'注意報のたびに窓を閉めるのは、もう終わりにしたい。まちの足を、煙の出ないものへ組み替える。空気を、根っこから変える。',
+  envStart:34,envTarget:64,lifeStart:54,lifeTarget:56,turns:9,baseLoad:7,baseCare:2,
+  deck:['c11','c03','c14','c23','c26','c04','c16','c13','c11','c03','c06','c12','c14'],
+  events:[
+   {turn:3,icon:'🚗',name:'渋滞のぶり返し',text:'新しい商業施設に車が殺到。空気がまた重くなった。',fx:{env:-4,life:-2},
+    fact:'まちの設計は空気の質を左右します。車に依存しないまちづくりが根本の対策です。'},
+   {turn:6,icon:'🚲',name:'自転車のまち',text:'安全な自転車道が network になり、人が乗りはじめた。',fx:{boostTag:'citizen'},
+    fact:'安全な自転車インフラは利用を大きく増やし、排気と渋滞を同時に減らします。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：渋滞の逆襲',text:'クルマ社会の習慣は根強い。澱が渋滞の中に潜んで、空気をまた濁らせる。',fx:{env:-5},
+    fact:'交通のクリーン化は、インフラだけでなく習慣の変化にも時間がかかります。'},
+  ]},
+  dilemma:{turn:5,title:'バス路線の赤字',
+   text:'郊外のバス路線が赤字続き。廃止すれば黒字だが、車を持たない人の足が消える。',
+   opts:[
+    {name:'✂️ 赤字路線を廃止する',fxText:'くらし+4 ／ 環境-3',fx:{life:4,env:-3},
+     after:'収支は改善した。停留所のベンチに、来なくなった人がいる。'},
+    {name:'🚐 小型EVで路線を維持する',fxText:'負荷-2(ずっと) ／ くらし-3',fx:{load:2,dur:0,life:-3},
+     after:'費用はかさんだ。だが誰も、まちから取り残されずにすんだ。'},
+   ]},
+  learn:'大気汚染とCO2は、多くが同じ燃焼から生まれます。だから交通の電化・公共交通の充実は、空気と気候を「一石二鳥」で良くする対策。健康と気候は、同じ側にあります。',
+  ps:'追伸　こちらの子は、排気ガスの匂いを知りません。\nそれを「かわいそう」と言う大人も、もういません。'},
+
+ {id:'freshwater2',domain:'freshwater',part:2,icon:'🌊',name:'流域まるごとの水',axis:'淡水の変化 — 水循環の再生',act:2,
+  requires:{all:['freshwater1'],any:['land1','climate1']},
+  unlockReason:'渇水を凌ぐたび思い知った。水は蛇口の問題ではなく、山から海までの「流れ」の問題だと。',
+  desc:'ダムひとつでは、極端になる雨と乾きに追いつけない。山の森から海の河口まで、流域まるごとで水をめぐらせる設計へ。',
+  envStart:34,envTarget:64,lifeStart:54,lifeTarget:56,turns:9,baseLoad:7,baseCare:2,
+  deck:['c18','c17','c15','c10','c27','c14','c08','c13','c18','c15','c12','c16'],
+  events:[
+   {turn:3,icon:'⛈️',name:'記録的豪雨',text:'一日で一月ぶんの雨。まちの排水が追いつかない。',fx:{env:-5,life:-4},
+    fact:'温暖化は「降りすぎ」と「降らなすぎ」を両方増やします。流域全体で水を受け止める設計が要ります。'},
+   {turn:6,icon:'🌿',name:'グリーンインフラ',text:'雨をしみ込ませる「まちのスポンジ」が広がる。',fx:{boostTag:'nature'},
+    fact:'雨庭や透水舗装は洪水をやわらげ、地下水を養い、水をきれいにします。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：濁りの逆流',text:'上流のどこかで、また誰かが目を逸らした。澱が川を、もとの濁りへ引き戻そうとする。',fx:{env:-5},
+    fact:'水質改善は継続的な監視がなければ、汚染源の再発を防ぎきれません。'},
+  ]},
+  dilemma:{turn:5,title:'堤防か、遊水地か',
+   text:'氾濫する川。コンクリートで固めるか、あえて水があふれる場所を残すか。',
+   opts:[
+    {name:'🧱 堤防を高く固める',fxText:'くらし+4 ／ 環境-3',fx:{life:4,env:-3},
+     after:'まちは守られた。だが川と生きものの居場所が、また細くなった。'},
+    {name:'🦆 遊水地と湿地でいなす',fxText:'保全+2(2年) ／ くらし-2',fx:{care:2,dur:2,life:-2},
+     after:'あふれても被害の出ない場所をつくった。渡り鳥の名所にもなった。'},
+   ]},
+  learn:'水は「使う量」だけでなく、山・森・土・川・海をめぐる「循環」の問題。森を育て、湿地を残し、まちに雨をしみ込ませる——流域全体で水を蓄える発想が、渇水にも洪水にも効きます。',
+  ps:'追伸　こちらの川は、蛇行を取り戻しました。\nまっすぐだった頃より、ずっと魚がいます。\n人も、川に近づけるようになりました。'},
+
+ {id:'ocean2',domain:'ocean',part:2,icon:'🐳',name:'よみがえる海の森',axis:'海洋酸性化 — ブルーカーボン',act:2,
+  requires:{all:['ocean1'],any:['climate1']},
+  unlockReason:'貝を守るだけでは、酸性化は止まらない。原因は大気のCO2——気候の傷と、同じ根だった。',
+  desc:'海を「酸っぱく」させているのは、空にたまるCO2。海藻とアマモの森を育て、海自身にCO2を吸い戻させながら、いのちのゆりかごを取り戻す。',
+  envStart:35,envTarget:66,lifeStart:54,lifeTarget:56,turns:9,baseLoad:7,baseCare:2,
+  deck:['c19','c24','c07','c03','c11','c13','c08','c19','c24','c12','c16','c14'],
+  events:[
+   {turn:3,icon:'🌡️',name:'海洋熱波',text:'海水温が上がり、サンゴが白くなりはじめた。',fx:{env:-5,life:-2},
+    fact:'高水温はサンゴから共生藻が抜ける「白化」を招きます。酸性化と熱波は、同じCO2が生む双子の脅威です。'},
+   {turn:6,icon:'🌱',name:'藻場の再生',text:'植えたアマモが根づき、稚魚が群れはじめた。',fx:{boostTag:'nature'},
+    fact:'藻場や海藻の森は、稚魚のゆりかごでありCO2の貯金箱(ブルーカーボン)でもあります。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：白化の再来',text:'海水温がまた上がった夜、澱がサンゴの色を奪っていく。',fx:{env:-5},
+    fact:'高水温が続くとサンゴは共生藻を失い白化します。再生には安定した環境が欠かせません。'},
+  ]},
+  dilemma:{turn:5,title:'漁場か、保護区か',
+   text:'豊かな漁場を、一定期間「禁漁の保護区」にする案。今は損だが、海は回復するかもしれない。',
+   opts:[
+    {name:'🎣 今の漁を続ける',fxText:'くらし+4 ／ 保全-1(ずっと)',fx:{life:4,care:-1,dur:0},
+     after:'今年の水揚げは守れた。数年後、群れは少しずつ細っていった。'},
+    {name:'🚫 期間限定の保護区にする',fxText:'保全+2(ずっと) ／ くらし-4',fx:{care:2,dur:0,life:-4},
+     after:'苦しい数年だった。だが解禁の日、網は重さで沈みそうだった。'},
+   ]},
+  learn:'海洋酸性化の根本原因は、大気のCO2。だから気候対策と海の対策は切り離せません。同時に、ブルーカーボンの森は海側からCO2を吸い戻し、生きものも守る——海の回復は、気候の回復でもあります。',
+  ps:'追伸　こちらの海に、クジラが戻りました。\nあなたの時代には「もう見られない」と言われていた種です。\n分岐点は、ちゃんと分岐したのです。'},
+
+ {id:'biogeo2',domain:'biogeo',part:2,icon:'🌾',name:'めぐる畑',axis:'窒素・リン循環 — 循環型農業',act:2,
+  requires:{all:['biogeo1'],any:['land1','freshwater1']},
+  unlockReason:'湖の緑を消しても、畑が変わらなければまた濁る。栄養を「捨てる」から「めぐらせる」へ。',
+  desc:'流れ出す栄養を止めるだけでなく、めぐらせる。家畜のふんも生ごみも肥料に戻し、畑と水を同時に健やかにする。',
+  envStart:35,envTarget:64,lifeStart:54,lifeTarget:56,turns:9,baseLoad:7,baseCare:3,
+  deck:['c20','c25','c21','c27','c05','c13','c16','c08','c20','c25','c12','c14'],
+  events:[
+   {turn:3,icon:'💸',name:'肥料価格の高騰',text:'輸入肥料が高すぎて、農家の手が止まった。',fx:{life:-5},
+    fact:'化学肥料の多くは輸入や化石燃料に依存します。地域で栄養を循環させることは、経済的な強さにもなります。'},
+   {turn:6,icon:'🐄',name:'ふんが宝に',text:'家畜のふんからつくった肥料とガスが売れはじめた。',fx:{boostTag:'econ'},
+    fact:'家畜ふんや生ごみの発酵は、エネルギーと肥料を生む「地域の資源」に変わります。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：藻の大発生',text:'ひと雨で流れ込んだ栄養に、澱が湖の色を変えてしまう。',fx:{env:-5},
+    fact:'一度の豪雨による肥料の流出だけでも、富栄養化が急速に進むことがあります。'},
+  ]},
+  dilemma:{turn:5,title:'収穫量か、土か',
+   text:'今年だけ肥料を増やせば収穫は跳ね上がる。だが土と川には、また負担がかかる。',
+   opts:[
+    {name:'📈 肥料を増やして増収する',fxText:'くらし+4 ／ 環境-4',fx:{life:4,env:-4},
+     after:'今年の帳簿は黒字。下流の湖が、また少し緑を増した。'},
+    {name:'🌱 土を育てて長い目で稼ぐ',fxText:'保全+2(2年) ／ くらし-2',fx:{care:2,dur:2,life:-2},
+     after:'今年は控えめ。だが年々、少ない肥料で穫れる畑になっていった。'},
+   ]},
+  learn:'窒素とリンは、食料に欠かせないのに、多すぎると水を殺す。捨てずに土へ戻す循環型農業は、水質・気候・食料の安定を同時に叶えます。「ちょうどよさ」を設計することが、この指標の答えです。',
+  ps:'追伸　こちらの畑では、ミミズが土を耕しています。\n機械より静かで、ずっと働き者だと農家は笑います。'},
+
+ {id:'ozone2',domain:'ozone',part:2,icon:'🌍',name:'世界でふさぐ穴',axis:'成層圏オゾン — 国際協調',act:2,
+  requires:{all:['ozone1'],any:['aerosol1','climate1']},
+  unlockReason:'一国だけがフロンを止めても、空はつながっている。世界で足並みをそろえるときだ。',
+  desc:'空に国境はない。豊かな国が資金と技術を出し合い、どの国もフロンを止められるようにする。人類が一度だけ見せた、みごとな連帯の再現。',
+  envStart:36,envTarget:66,lifeStart:56,lifeTarget:56,turns:9,baseLoad:6,baseCare:2,
+  deck:['c22','c13','c14','c04','c16','c05','c12','c22','c13','c06','c11','c14'],
+  events:[
+   {turn:3,icon:'🏭',name:'抜け道の発覚',text:'こっそり古い物質をつくる工場が見つかった。',fx:{env:-4,life:-2},
+    fact:'国際的な取り決めには、監視と検証の仕組みが欠かせません。守らせてこそのルールです。'},
+   {turn:6,icon:'🤝',name:'途上国への支援',text:'基金が動き、代替技術が世界へ広がった。',fx:{boostTag:'policy'},
+    fact:'オゾン層保護の成功は、途上国の転換を支える国際基金に支えられました。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：古い冷媒の抜け穴',text:'回収されないまま眠っていた古い機器から、澱がまだガスを漏らし続けている。',fx:{env:-5},
+    fact:'廃棄されずに残る古い機器からのフロン漏出は、対策の見えない抜け穴になります。'},
+  ]},
+  dilemma:{turn:5,title:'代替ガスの落とし穴',
+   text:'フロンの代わりに使うガスが、実は強力な温室効果を持つと分かった。切り替えるには追加投資が要る。',
+   opts:[
+    {name:'💰 当面はそのまま使う',fxText:'くらし+4 ／ 負荷+2(2年)',fx:{life:4,load:-2,dur:2},
+     after:'コストは抑えた。オゾンは守れても、気候に宿題を残した。'},
+    {name:'♻️ 温暖化しない冷媒へ移行する',fxText:'負荷-2(ずっと) ／ くらし-3',fx:{load:2,dur:0,life:-3},
+     after:'出費はかさんだ。だがオゾンと気候、両方に誠実な選択だった。'},
+   ]},
+  learn:'オゾン層保護は、人類が世界規模で環境問題を解決できた稀有な実例。原因物質を特定し、資金で公平さを担保し、監視で守らせた——この「成功の型」は、いま気候変動に応用されようとしています。希望は、過去にちゃんとありました。',
+  ps:'追伸　こちらの空の傘は、すっかり繕われました。\n人類は、やればできる。その一点を、私たちは誇りにしています。'},
+
+ {id:'land2',domain:'land',part:2,icon:'🏙️',name:'まちと畑の再設計',axis:'土地利用の変化 — 賢い土地の使い方',act:2,
+  requires:{all:['land1'],any:['biosphere1','freshwater1']},
+  unlockReason:'森を守るほど分かった。森を削らせるのは、広がりすぎたまちと畑だと。土地の使い方そのものを設計し直す。',
+  desc:'森を守るには、森の外を変えるしかない。まちを縦に賢く畳み、畑の実りを高め、これ以上「自然を削らない」土地の使い方へ。',
+  envStart:33,envTarget:64,lifeStart:52,lifeTarget:58,turns:9,baseLoad:8,baseCare:2,
+  deck:['c02','c10','c25','c23','c15','c08','c13','c16','c10','c02','c12','c14'],
+  events:[
+   {turn:3,icon:'🏗️',name:'郊外の開発圧力',text:'安い土地を求め、開発が森ぎわに迫る。',fx:{env:-5,life:-2},
+    fact:'まちが横に広がるほど、森や農地が削られます。コンパクトなまちづくりは自然を守る土地戦略です。'},
+   {turn:6,icon:'🌳',name:'みどりの都市計画',text:'公園と農地を組み込んだまちづくりが評価された。',fx:{boostTag:'nature'},
+    fact:'都市の緑地や都市農業は、暑さをやわらげ、生きものを呼び、食と憩いを近くに戻します。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：開発の誘い',text:'儲け話の裏で、澱がまた森の際に線を引こうとする。',fx:{env:-5},
+    fact:'保護区の外側では、経済的な圧力による開発の誘惑がなくなることはありません。'},
+  ]},
+  dilemma:{turn:5,title:'放棄された農地',
+   text:'耕す人のいなくなった農地。太陽光発電所にするか、森へ還すか。',
+   opts:[
+    {name:'☀️ 発電所として活用する',fxText:'負荷-2(ずっと) ／ 環境-2',fx:{load:2,dur:0,env:-2},
+     after:'再エネは増えた。ただ、森に還る道は閉ざされた。'},
+    {name:'🌲 自然に還して森を広げる',fxText:'保全+2(ずっと) ／ くらし-3',fx:{care:2,dur:0,life:-3},
+     after:'すぐの利益はない。だが十年後、そこは若い森になっているはずだ。'},
+   ]},
+  learn:'土地は限られた資源。森・農地・まちをどう配置するかは、生物多様性・水・気候のすべてに響きます。「広げる」より「賢く畳む」——コンパクトで緑豊かな土地の使い方が、自然と暮らしを両立させます。',
+  ps:'追伸　こちらのまちは、歩いて用が足ります。\n畑がまちの中にあり、子どもが収穫を手伝います。\nあなたの選択が、この風景を選んでくれました。'},
+
+ {id:'biosphere2',domain:'biosphere',part:2,icon:'🕸️',name:'いのちの網を織り直す',axis:'生物多様性 — 生態系ネットワーク',act:2,
+  requires:{all:['biosphere1'],any:['land1','ocean1']},
+  unlockReason:'一種を守るだけでは足りない。生きものは網の目——分断された自然を、つなぎ直すときだ。',
+  desc:'守るべきは一種ではなく、つながりそのもの。分断された森や水辺を「緑の回廊」でつなぎ、いのちの網を織り直す。',
+  envStart:34,envTarget:66,lifeStart:52,lifeTarget:58,turns:9,baseLoad:7,baseCare:3,
+  deck:['c10','c02','c15','c25','c27','c13','c05','c08','c12','c16','c14','c02'],
+  events:[
+   {turn:3,icon:'🦎',name:'外来種の侵入',text:'放たれた外来種が、在来の生きものを追いつめる。',fx:{env:-5,life:-2},
+    fact:'外来種は生態系のバランスを崩す大きな要因。早期の発見と対応が被害を最小にします。'},
+   {turn:6,icon:'🦋',name:'回廊がつながる',text:'分断されていた森が、緑の橋で結ばれた。',fx:{boostTag:'nature'},
+    fact:'生態回廊は生きものの行き来を取り戻し、種の遺伝的な健康と再生を助けます。'},
+  ],
+  boss:{name:'澱',icon:'🌑',moves:[
+   {turn:7,icon:'🌑',name:'澱の一手：静寂の侵食',text:'回復しかけた場所に、澱がまた静けさを連れてくる。',fx:{env:-5},
+    fact:'生態系の回復には長い時間がかかる一方、失うのは一瞬です。'},
+  ]},
+  dilemma:{turn:5,title:'守る優先順位',
+   text:'予算は限られている。目立つ大型動物を守るか、目立たないが網の要となる小さな生きものを守るか。',
+   opts:[
+    {name:'🐻 象徴的な大型動物を守る',fxText:'くらし+4 ／ 保全+1(2年)',fx:{life:4,care:1,dur:2},
+     after:'人々の関心は集まった。足元の小さな要は、後回しになった。'},
+    {name:'🐝 網の要の小さな種を守る',fxText:'保全+3(2年) ／ くらし-2',fx:{care:3,dur:2,life:-2},
+     after:'地味な選択だった。だが花粉を運ぶ虫が戻り、実りが増えた。'},
+   ]},
+  learn:'生態系は、糸が絡み合った網。一本の糸(一種)を守るより、網目のつながりを保つほうが、全体は強くしなやかになります。回廊でつなぎ、要となる種を支える——「関係を守る」ことが、生物多様性の核心です。',
+  ps:'追伸　こちらの森は、また「うるさい」です。\n虫と鳥と蛙の声で、夜も静かではありません。\nこの騒がしさが、健康のしるしなのだと教わりました。'},
+
+ /* ---------- 最終ミッション ---------- */
+ {id:'climate2',domain:'climate',part:2,icon:'🌏',name:'めぐる星のつくり方',axis:'気候変動 — 脱炭素という総決算',act:3,finale:true,
+  requires:{all:['climate1'],count:{of:['novel2','aerosol2','freshwater2','ocean2','biogeo2','ozone2','land2','biosphere2'],n:5}},
+  unlockReason:'ひとつずつ治した傷が、すべて一本の根——CO2——につながっていた。最後の傷は、いちばん深い。',
+  desc:'最後の傷は、すべての傷の根。ためこまれたCO2を減らし、放っておけばふくらむ負荷を、ついに反転させる。環境も、くらしも、両方を取り戻せ。それがこの星の答えだ。',
+  envStart:38,envTarget:70,lifeStart:50,lifeTarget:60,turns:10,baseLoad:8,baseCare:3,loadGrow:1,
+  deck:['c03','c26','c28','c08','c14','c11','c13','c06','c23','c03','c26','c12','c16','c08'],
+  events:[
+   {turn:3,icon:'📉',name:'不況と分断',text:'「環境より今の生活だ」——世論が割れ、対策が停滞する。',fx:{life:-5},
+    fact:'気候対策の最大の壁は技術より合意形成。痛みを分かち合い、公正に進める「公正な移行」が鍵です。'},
+   {turn:6,icon:'🌐',name:'世界の連帯',text:'各国と企業が、ついに同じ方向を向いた。',fx:{boostTag:'policy'},
+    fact:'脱炭素は一国では不可能。世界が足並みをそろえたとき、加速のスイッチが入ります。'},
+   {turn:8,icon:'🔥',name:'最後の熱波',text:'ためこまれた熱が、最後の抵抗を見せる。',fx:{env:-5},
+    fact:'すでに出したCO2の影響はしばらく続きます。だからこそ「今すぐ減らす」ことに意味があります。'},
+  ],
+  boss:{name:'澱',icon:'🌑',finale:true,moves:[
+   {turn:2,icon:'🌑',name:'澱、目覚める',text:'積もり積もった惰性が、意志を持ちはじめた。すべての傷の奥に、同じ影がいたのだと知る。',fx:{load:-2,dur:2},
+    fact:'長年の慣性(ロックイン)は、対策を始めた直後にこそ重く感じられるものです。'},
+   {turn:5,icon:'🌑',name:'澱の揺さぶり',text:'積み上げてきたものを、澱が試すように揺さぶる。ここまでの傷が、うずくように痛む。',fx:{env:-6},
+    fact:'気候変動の影響はすでに一定量が避けられません(気候の慣性)。対策の途上でも被害は続きます。'},
+   {turn:9,icon:'🌑',name:'澱、最後の抵抗',text:'消える間際、澱は最後の力を振り絞った。——だが、その影はもう、あなたより小さい。',fx:{env:-8,life:-4},
+    fact:'転換点の直前がもっとも苦しい局面になることは、多くの社会変革に共通する現象です。'},
+  ]},
+  dilemma:{turn:4,title:'誰が費用を負うのか',
+   text:'脱炭素の費用を、誰が多く負担するか。豊かな層に厚く求めるか、広く薄く分けるか。',
+   opts:[
+    {name:'⚖️ 広く薄く、みなで負担する',fxText:'くらし+4 ／ 負荷+1(2年)',fx:{life:4,load:-1,dur:2},
+     after:'反発は少なかった。ただ、いちばん弱い家計にも同じ重さがかかった。'},
+    {name:'🤝 余力のある側が多く担う',fxText:'負荷-2(ずっと) ／ くらし-2',fx:{load:2,dur:0,life:-2},
+     after:'議論は紛糾した。だが「公正な移行」は、社会の分断を防いだ。'},
+   ]},
+  learn:'気候変動は、あなたが治してきたすべての傷の根。だからこそ最後にして最大の関門です。技術はもう揃っている——足りないのは、痛みを分かち合いながら急ぐ「合意」だけ。あなたがこのゲームでやったこと、つながり全体を見てバランスを取ることこそ、現実でいちばん必要な力です。',
+  ps:''},
+];
+const MISSIONS=MISSIONS_FRONT.concat(MISSIONS_BACK);
+const missionById=id=>MISSIONS.find(m=>m.id===id);
+/* ドメイン→ミッション（前編・後編） */
+function domainMissions(dom){return MISSIONS.filter(m=>m.domain===dom).sort((a,b)=>a.part-b.part);}
+
+/* ===== バランス確定値（自動チューニング by balance sim, §7-4・易化調整）===== */
+const TUNE={
+  novel1:{envTarget:72,baseLoad:5,turns:9},
+  aerosol1:{envTarget:52,baseLoad:5,turns:8},
+  freshwater1:{envTarget:74,baseLoad:5,turns:9},
+  ocean1:{envTarget:65,baseLoad:5,turns:9},
+  biogeo1:{envTarget:56,baseLoad:5,turns:8},
+  climate1:{envTarget:50,baseLoad:5,turns:9},
+  ozone1:{envTarget:68,baseLoad:5,turns:9},
+  land1:{envTarget:68,baseLoad:6,turns:9},
+  biosphere1:{envTarget:64,baseLoad:6,turns:8},
+  novel2:{envTarget:90,baseLoad:7,turns:8,lifeTarget:56},
+  aerosol2:{envTarget:66,baseLoad:6,turns:9,lifeTarget:56},
+  freshwater2:{envTarget:80,baseLoad:7,turns:9,lifeTarget:52},
+  ocean2:{envTarget:89,baseLoad:8,turns:9,lifeTarget:54},
+  biogeo2:{envTarget:87,baseLoad:6,turns:8,lifeTarget:56},
+  ozone2:{envTarget:90,baseLoad:5,turns:8,lifeTarget:56},
+  land2:{envTarget:57,baseLoad:7,turns:9,lifeTarget:58},
+  biosphere2:{envTarget:70,baseLoad:8,turns:9,lifeTarget:58},
+  climate2:{envTarget:80,baseLoad:7,turns:10,lifeTarget:60},
+};
+MISSIONS.forEach(m=>{const t=TUNE[m.id];if(t)Object.assign(m,t);});
+
+/* =====================================================
+   ENGINE CORE — store / state / DAG / EARTH
+===================================================== */
+const store=(()=>{
+  let mem={};
+  function ok(){try{return typeof window!=='undefined'&&window.localStorage;}catch(e){return null;}}
+  return {
+    get(k){try{if(ok())return localStorage.getItem(k);}catch(e){} return (k in mem)?mem[k]:null;},
+    set(k,v){try{if(ok()){localStorage.setItem(k,v);return;}}catch(e){} mem[k]=v;},
+    del(k){try{if(ok()){localStorage.removeItem(k);return;}}catch(e){} delete mem[k];},
+  };
+})();
+const SAVE_KEY='ste3';
+let S={stance:null,cleared:[],owned:[],flags:{},stars:{},skillPts:0,skills:{},deckExclude:[],tagTally:{}};
+function save(){store.set(SAVE_KEY,JSON.stringify({stance:S.stance,cleared:S.cleared,owned:S.owned,flags:S.flags,stars:S.stars,skillPts:S.skillPts,skills:S.skills,deckExclude:S.deckExclude,tagTally:S.tagTally}));}
+function load(){try{const r=store.get(SAVE_KEY);if(r){const o=JSON.parse(r);S.stance=o.stance||null;S.cleared=o.cleared||[];S.owned=o.owned||[];S.flags=o.flags||{};S.stars=o.stars||{};S.skillPts=o.skillPts||0;S.skills=o.skills||{};S.deckExclude=o.deckExclude||[];S.tagTally=o.tagTally||{};}}catch(e){}}
+function resetSave(){store.del(SAVE_KEY);S={stance:null,cleared:[],owned:[],flags:{},stars:{},skillPts:0,skills:{},deckExclude:[],tagTally:{}};}
+
+const isCleared=id=>S.cleared.includes(id);
+function reqMet(m){
+  const r=m.requires||{};
+  if(r.all&&!r.all.every(isCleared))return false;
+  if(r.any&&!r.any.some(isCleared))return false;
+  if(r.count&&r.count.of.filter(isCleared).length<r.count.n)return false;
+  return true;
+}
+function missionState(m){if(isCleared(m.id))return 'done';return reqMet(m)?'avail':'locked';}
+function domainMissionsCleared(dom){return domainMissions(dom).filter(m=>isCleared(m.id)).length;}
+function domainState(dom){
+  const ms=domainMissions(dom);const done=domainMissionsCleared(dom);
+  if(done===ms.length)return 'done';
+  if(ms.some(m=>missionState(m)==='avail'))return 'avail';
+  if(done>0)return 'part';
+  return 'locked';
+}
+const domainHealFrac=dom=>domainMissionsCleared(dom)/domainMissions(dom).length;
+const totalCleared=()=>S.cleared.length;
+/* ミッション評価：目標に対する余裕(env / くらし)の小さい方で判定 */
+function missionStars(runState){
+  if(!runState||!runState.m)return 1;
+  const envMargin=runState.env-runState.m.envTarget;
+  const lifeMargin=runState.m.lifeTarget!=null?(runState.life-runState.m.lifeTarget):null;
+  const margin=lifeMargin!=null?Math.min(envMargin,lifeMargin):envMargin;
+  if(margin>=25)return 3;
+  if(margin>=10)return 2;
+  return 1;
+}
+function starText(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
+const totalDomainsHealed=()=>DOMAIN_LIST.filter(d=>domainState(d)==='done').length;
+const globalHealFrac=()=>S.cleared.length/MISSIONS.length;
+const finaleMission=()=>MISSIONS.find(m=>m.finale);
+const isGameCleared=()=>{const f=finaleMission();return f&&isCleared(f.id);};
+
+/* 新たに解放されるミッション（clear前後の差分） */
+function newlyUnlocked(beforeCleared,afterCleared){
+  const wasAvail=id=>{const m=missionById(id);if(!m)return true;const r=m.requires||{};
+    if(beforeCleared.includes(id))return true;
+    if(r.all&&!r.all.every(x=>beforeCleared.includes(x)))return false;
+    if(r.any&&!r.any.some(x=>beforeCleared.includes(x)))return false;
+    if(r.count&&r.count.of.filter(x=>beforeCleared.includes(x)).length<r.count.n)return false;
+    return true;};
+  const nowAvail=id=>{const m=missionById(id);if(!m)return true;const r=m.requires||{};
+    if(afterCleared.includes(id))return true;
+    if(r.all&&!r.all.every(x=>afterCleared.includes(x)))return false;
+    if(r.any&&!r.any.some(x=>afterCleared.includes(x)))return false;
+    if(r.count&&r.count.of.filter(x=>afterCleared.includes(x)).length<r.count.n)return false;
+    return true;};
+  return MISSIONS.filter(m=>!beforeCleared.includes(m.id)&&!wasAvail(m.id)&&nowAvail(m.id)).map(m=>m.id);
+}
+
+/* ============ 地球儀（自転するリアル地球） ============ */
+const SYMPTOM_COLOR={climate:'#ff5a3c',ozone:'#c58bff',aerosol:'#9aa0ad',freshwater:'#5fa8d6',
+  novel:'#c76fd0',biogeo:'#66c05a',land:'#c98a3a',biosphere:'#e0b64a',ocean:'#4fb0c0'};
+
+/* 大陸シルエット（equirectタイル 0..236 × 0..236、海が支配的なので継ぎ目は海で目立たない） */
+function continentPaths(){
+  return `
+   <path d="M40,48 Q26,58 30,76 Q34,92 50,96 Q60,92 60,82 Q72,80 70,66 Q74,56 62,50 Q50,42 40,48 Z" />
+   <path d="M76,34 Q68,40 72,50 Q82,54 88,46 Q90,36 76,34 Z" />
+   <path d="M54,100 Q49,108 55,116 Q51,132 60,150 Q64,170 57,182 Q67,186 71,168 Q73,148 66,132 Q71,116 62,104 Q58,98 54,100 Z" />
+   <path d="M116,70 Q110,78 119,84 Q132,86 140,79 Q136,71 125,70 Q120,66 116,70 Z" />
+   <path d="M120,94 Q111,104 116,122 Q121,142 133,158 Q142,170 151,159 Q157,144 152,126 Q159,112 150,101 Q137,90 120,94 Z" />
+   <path d="M144,64 Q139,80 151,87 Q170,90 190,85 Q206,80 208,66 Q198,56 176,57 Q159,57 144,64 Z" />
+   <path d="M157,88 Q155,100 164,105 Q171,97 167,89 Q162,85 157,88 Z" />
+   <path d="M188,92 Q184,100 190,104 Q197,100 195,92 Q191,88 188,92 Z" />
+   <path d="M198,156 Q191,164 198,175 Q211,181 221,174 Q227,163 218,155 Q208,149 198,156 Z" />
+   <path d="M214,120 Q210,126 214,131 Q221,130 221,123 Q218,118 214,120 Z" />`;
+}
+function cloudBlobs(){
+  const b=[[40,70,18,9],[95,55,22,10],[150,90,20,9],[185,140,24,11],[70,150,20,10],[210,100,16,8],[120,175,22,10]];
+  return b.map(c=>`<ellipse cx="${c[0]}" cy="${c[1]}" rx="${c[2]}" ry="${c[3]}" fill="#ffffff"/>`).join('');
+}
+
+/* healFrac 0..1 → 彩度/明度 */
+function tintFilter(f){const sat=(0.35+f*0.75).toFixed(2);const bri=(0.8+f*0.2).toFixed(2);return `saturate(${sat}) brightness(${bri})`;}
+
+function earthSVG(opts){
+  opts=opts||{};
+  const f=globalHealFrac();
+  const hazeOp=((1-f)*0.5).toFixed(2);
+  const cont=continentPaths();
+  const clouds=cloudBlobs();
+  // markers
+  let markers='';
+  DOMAIN_LIST.forEach(dom=>{
+    const d=DOMAINS[dom];const st=domainState(dom);const sick=(1-domainHealFrac(dom));
+    const col=SYMPTOM_COLOR[dom];
+    const auraOp=(sick*0.55).toFixed(2);
+    markers+=`
+     <g class="symptom" data-dom="${dom}">
+       <circle cx="${d.mx}" cy="${d.my}" r="27" fill="${col}" opacity="${auraOp}" filter="url(#symBlur)"/>
+     </g>
+     <g class="marker ${st}" data-dom="${dom}" role="button" tabindex="0" aria-label="${d.name}">
+       <circle class="m-ring" cx="${d.mx}" cy="${d.my}" r="15"/>
+       <circle class="m-bg" cx="${d.mx}" cy="${d.my}" r="15"/>
+       <text x="${d.mx}" y="${d.my+6}" font-size="17" text-anchor="middle">${st==='done'?'✓':d.icon}</text>
+       <circle class="spark" cx="${d.mx-13}" cy="${d.my-11}" r="3"/>
+       <circle class="spark" cx="${d.mx+14}" cy="${d.my-6}" r="2.4"/>
+       <circle class="spark" cx="${d.mx+8}" cy="${d.my+13}" r="2.6"/>
+     </g>`;
+  });
+  return `
+<svg class="earth" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+   <clipPath id="globeClip"><circle cx="150" cy="150" r="118"/></clipPath>
+   <radialGradient id="oceanG" cx="40%" cy="34%" r="75%">
+     <stop offset="0%" stop-color="#2f7fc4"/><stop offset="55%" stop-color="#1c5aa0"/>
+     <stop offset="100%" stop-color="#0c2f66"/>
+   </radialGradient>
+   <linearGradient id="landG" x1="0" y1="0" x2="0" y2="1">
+     <stop offset="0%" stop-color="#6fbf6a"/><stop offset="100%" stop-color="#3f8f52"/>
+   </linearGradient>
+   <radialGradient id="shadeG" cx="66%" cy="70%" r="80%">
+     <stop offset="45%" stop-color="#000010" stop-opacity="0"/>
+     <stop offset="100%" stop-color="#000010" stop-opacity="0.6"/>
+   </radialGradient>
+   <radialGradient id="specG" cx="34%" cy="28%" r="34%">
+     <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+     <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+   </radialGradient>
+   <radialGradient id="atmoG" cx="50%" cy="50%" r="50%">
+     <stop offset="78%" stop-color="#7fd0ff" stop-opacity="0"/>
+     <stop offset="92%" stop-color="#7fd0ff" stop-opacity="0.5"/>
+     <stop offset="100%" stop-color="#7fd0ff" stop-opacity="0"/>
+   </radialGradient>
+   <filter id="symBlur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
+   <filter id="cloudBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>
+   <filter id="beamGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2"/></filter>
+ </defs>
+
+ <circle cx="150" cy="150" r="127" fill="url(#atmoG)" class="globe-tint" style="opacity:${(0.4+f*0.6).toFixed(2)}"/>
+
+ <g clip-path="url(#globeClip)">
+   <g id="globe-media" style="filter:${tintFilter(f)}">
+     <circle cx="150" cy="150" r="118" fill="url(#oceanG)"/>
+     <g class="rot-layer" style="--tilew:-236px">
+       <g transform="translate(32,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
+       <g transform="translate(268,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
+     </g>
+   </g>
+   <g class="cloud-layer" style="--tilew:-236px" filter="url(#cloudBlur)">
+     <g transform="translate(32,32)">${clouds}</g>
+     <g transform="translate(268,32)">${clouds}</g>
+   </g>
+   <circle cx="150" cy="150" r="118" fill="#8b93a8" class="globe-tint" style="opacity:${hazeOp};mix-blend-mode:saturation"/>
+   <circle cx="150" cy="150" r="118" fill="url(#specG)"/>
+   <circle cx="150" cy="150" r="118" fill="url(#shadeG)"/>
+ </g>
+ <circle cx="150" cy="150" r="118" fill="none" stroke="#bfe4ff" stroke-width="1" opacity="0.5"/>
+
+ <g id="earth-front">
+   <g id="beams"></g>
+   ${markers}
+ </g>
+</svg>`;
+}
+
+/* 既存SVG内の彩度veilとマーカー状態だけを更新（再描画せず滑らかに） */
+function paintEarthTint(root){
+  if(!root)return;const f=globalHealFrac();
+  const media=root.querySelector('#globe-media');if(media)media.style.filter=tintFilter(f);
+  root.querySelectorAll('.globe-tint').forEach(el=>{
+    if(el.style.mixBlendMode==='saturation'||el.getAttribute('style')?.includes('saturation')){el.style.opacity=((1-f)*0.5).toFixed(2);}
+    else{el.style.opacity=(0.4+f*0.6).toFixed(2);}
+  });
+}
+
+/* =====================================================
+   ENGINE PLAY — board / cards / turns
+===================================================== */
+const $=id=>document.getElementById(id);
+function elx(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+const clampv=v=>Math.max(0,Math.min(100,Math.round(v)));
+const FASTON=()=>(typeof window!=='undefined'&&window.__FAST);
+const wait=ms=>new Promise(r=>setTimeout(r,FASTON()?Math.min(ms,8):ms));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+let R=null;
+
+function startMission(m){
+  // 残留オーバーレイ(カード詳細シートなど)が開いたままにならないよう、開始時に必ず閉じる
+  ['sheet-bg','modal-bg','brief-bg','dilemma-bg','event-bg'].forEach(id=>{const e=$(id);if(e)e.classList.remove('show');});
+  R={m,env:m.envStart,life:m.lifeStart+(S.stance==='bond'?6:0)+(S.skills.breath?3:0),
+     baseLoad:m.baseLoad,baseCare:m.baseCare,loadGrow:m.loadGrow||0,
+     turn:1,maxTurns:m.turns,loadMods:[],careMods:[],playedTags:[],lastTag:null,tipped:false,
+     tagBoost:null,tagBoostLeft:0,busy:false,over:false,
+     drawPile:shuffle(m.deck.concat(S.owned.filter(id=>!S.deckExclude.includes(id)))),hand:[]};
+  R.life=clampv(R.life);
+  for(let i=0;i<handCap();i++)drawOne(true);
+  $('hm-name').textContent=m.name;
+  $('hm-axis').textContent=m.axis;
+  $('board-svg').innerHTML=buildBoardSVG();
+  renderGoals();renderPips();renderHand();updateBoard();setLog('カードを盤面へドラッグして、修復をはじめよう。');
+  showScreen('scr-play');
+}
+function sumMods(a){return a.reduce((s,m)=>s+m.amt,0);}
+function curLoad(t){t=t||R.turn;return Math.max(0,R.baseLoad+R.loadGrow*(t-1)-sumMods(R.loadMods)-(S.stance==='spark'?1:0));}
+function curCare(){return R.baseCare+sumMods(R.careMods)+(S.stance==='guard'?1:0);}
+function forecastNet(){return curCare()-curLoad();}
+
+function drawOne(silent){
+  if(R.drawPile.length===0)R.drawPile=shuffle(R.m.deck);
+  const id=R.drawPile.shift();R.hand.push({id,uid:id+'_'+Math.random().toString(36).slice(2,7),fresh:!silent});
+  if(R.hand.length>handCap())R.hand.shift();
+}
+
+/* ---------- board：環境サークル（経済・企業・個人・社会が環境を循環）---------- */
+function buildBoardSVG(){
+  const bnode=(x,y,emo,label)=>`<circle cx="${x}" cy="${y}" r="18" fill="var(--night2)" stroke="var(--panel-edge)" stroke-width="1.5"/>
+     <text x="${x}" y="${y+1}" text-anchor="middle" font-size="13">${emo}</text>
+     <text x="${x}" y="${y+14.5}" text-anchor="middle" font-size="9.5" font-weight="800" fill="var(--ink)">${label}</text>`;
+  return `
+   <defs>
+     <marker id="ar" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="7" refY="6" orient="auto-start-reverse">
+       <path d="M1,1 L11,6 L1,11 Z" fill="context-stroke"/>
+     </marker>
+     <radialGradient id="bd-earth" cx="40%" cy="35%" r="70%">
+       <stop offset="0%" stop-color="#3f8fd0"/><stop offset="100%" stop-color="#123a72"/>
+     </radialGradient>
+   </defs>
+   <!-- 循環の輪：企業→経済→個人→社会→企業 -->
+   <path d="M 82 84 Q 120 40 156 40" fill="none" stroke="#5b7fd4" stroke-width="2" marker-end="url(#ar)" opacity=".7"/>
+   <path d="M 184 40 Q 226 40 258 84" fill="none" stroke="#5b7fd4" stroke-width="2" marker-end="url(#ar)" opacity=".7"/>
+   <path d="M 258 152 Q 226 196 184 196" fill="none" stroke="#e08b3d" stroke-width="2" marker-end="url(#ar)" opacity=".7"/>
+   <path d="M 156 196 Q 120 196 82 152" fill="none" stroke="#e08b3d" stroke-width="2" marker-end="url(#ar)" opacity=".7"/>
+   <!-- 負荷（上→環境） -->
+   <path id="f-load" d="M 170 58 L 170 90" fill="none" stroke="var(--hurt)" stroke-width="3" marker-end="url(#ar)" stroke-linecap="round">
+     <animate attributeName="opacity" values="1;.4;1" dur="1.6s" repeatCount="indefinite"/></path>
+   <text id="t-load" x="188" y="80" font-size="10.5" font-weight="800" fill="var(--hurt)"></text>
+   <!-- 保全（下→環境） -->
+   <path id="f-care" d="M 170 178 L 170 146" fill="none" stroke="var(--heal)" stroke-width="3" marker-end="url(#ar)" stroke-linecap="round">
+     <animate attributeName="opacity" values="1;.4;1" dur="1.6s" repeatCount="indefinite"/></path>
+   <text id="t-care" x="188" y="164" font-size="10.5" font-weight="800" fill="var(--heal)"></text>
+   <!-- 外周ノード -->
+   ${bnode(170,40,'💰','経済')}
+   ${bnode(64,118,'🏢','企業')}
+   ${bnode(276,118,'🙂','個人')}
+   ${bnode(170,196,'🏘️','社会')}
+   <!-- 中央：環境サークル -->
+   <circle id="env-circle" class="envnode" cx="170" cy="118" r="27" fill="url(#bd-earth)" stroke="var(--heal)" stroke-width="3"/>
+   <text id="env-emoji" x="170" y="114" text-anchor="middle" font-size="20">🌍</text>
+   <text id="env-label" x="170" y="132" text-anchor="middle" font-size="10.5" font-weight="800" fill="var(--heal)"></text>
+   <text id="t-net" x="170" y="224" text-anchor="middle" font-size="10.5" font-weight="800"></text>
+   <text id="t-boost" x="170" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#c9b8ff"></text>`;
+}
+function updateBoard(){
+  const svg=$('board-svg');if(!svg||!R)return;
+  const load=curLoad(),care=curCare(),net=care-load;
+  const lw=Math.max(2.5,Math.min(8,3+load*0.5));
+  const cw=Math.max(2.5,Math.min(8,3+care*0.5));
+  const fl=svg.querySelector('#f-load'),fc=svg.querySelector('#f-care');
+  if(fl)fl.setAttribute('stroke-width',lw.toFixed(1));
+  if(fc)fc.setAttribute('stroke-width',cw.toFixed(1));
+  const tl=svg.querySelector('#t-load'),tc=svg.querySelector('#t-care');
+  if(tl)tl.textContent=`負荷 ${load}`;
+  if(tc)tc.textContent=`保全 ${care}`;
+  const envColor=net>=0?'var(--heal)':'var(--hurt)';
+  const ec=svg.querySelector('#env-circle'),el2=svg.querySelector('#env-label'),ee=svg.querySelector('#env-emoji');
+  if(ec)ec.setAttribute('stroke',envColor);
+  if(el2){el2.setAttribute('fill',envColor);el2.textContent=`環境 ${R.env}`;}
+  if(ee)ee.textContent=R.env>=70?'🌿':R.env>=40?'🌍':'🏜️';
+  const tn=svg.querySelector('#t-net');
+  if(tn){tn.textContent=`このままなら 環境 ${net>=0?'+':''}${net} / 年`;tn.setAttribute('fill',net>=0?'var(--heal)':'var(--hurt)');}
+  const tb=svg.querySelector('#t-boost');
+  if(tb)tb.textContent=R.tagBoost?`✨ 次の「${TAGS[R.tagBoost].label}」カードに追い風`:'';
+  // 上部ゲージ（盤面外）
+  $('g-env-val').textContent=R.env;$('g-life-val').textContent=R.life;
+  $('g-env').querySelector('i').style.width=R.env+'%';
+  $('g-life').querySelector('i').style.width=R.life+'%';
+  const et=$('env-target'),etn=$('env-tnum');
+  et.style.left=R.m.envTarget+'%';etn.style.left=R.m.envTarget+'%';etn.textContent='目標'+R.m.envTarget;
+  etn.classList.toggle('ok',R.env>=R.m.envTarget);
+  if(R.m.lifeTarget){const lt=$('life-target'),ltn=$('life-tnum');lt.style.display='';lt.style.left=R.m.lifeTarget+'%';
+    ltn.style.left=R.m.lifeTarget+'%';ltn.textContent='目標'+R.m.lifeTarget;ltn.classList.toggle('ok',R.life>=R.m.lifeTarget);}
+  renderGoals();
+}
+function renderGoals(){
+  const g=$('goal-strip');if(!g)return;g.innerHTML='';
+  const items=[['🌍 環境 '+R.m.envTarget+'以上',R.env>=R.m.envTarget]];
+  if(R.m.lifeTarget)items.push(['🏘️ くらし '+R.m.lifeTarget+'以上',R.life>=R.m.lifeTarget]);
+  items.push(['⏳ 残り '+(R.maxTurns-R.turn+1)+'年',true,'muted']);
+  if(R.tipped)items.push(['⚠️ 転換点を超えた',false]);
+  if(R.m.boss){
+    const nextMove=R.m.boss.moves.find(mv=>mv.turn===R.turn+1);
+    if(nextMove)items.push([`${R.m.boss.icon} ${R.m.boss.name}の気配：来年「${nextMove.name.replace(/^.*：/,'')}」`,false]);
+  }
+  items.forEach(([t,ok,mut])=>{const s=elx('span','gs-item'+(mut?'':(ok?' ok':' warn')));s.textContent=t;g.appendChild(s);});
+}
+function renderPips(){
+  const p=$('pips');p.innerHTML='';
+  const evTurns=(R.m.events||[]).map(e=>e.turn);const dilTurn=R.m.dilemma?R.m.dilemma.turn:-1;
+  for(let i=1;i<=R.maxTurns;i++){
+    const pip=elx('div','pip');
+    if(i<R.turn)pip.classList.add('left');
+    if(i===R.turn)pip.classList.add('now');
+    if(evTurns.includes(i)||i===dilTurn)pip.classList.add('ev');
+    p.appendChild(pip);
+  }
+  const remain=R.maxTurns-R.turn+1;const tl=$('time-label');
+  tl.textContent='残り'+remain+'年';tl.classList.toggle('urgent',remain<=2);
+}
+
+/* ---------- hand ---------- */
+function renderHand(){
+  const h=$('hand');h.innerHTML='';
+  R.hand.forEach(card=>{
+    const c=cardById(card.id);const node=elx('div','card');
+    if(card.fresh)node.classList.add('new-deal');
+    if(comboReady(c))node.classList.add('combo-ready');
+    if(c.variant)node.classList.add('evolved');
+    node.dataset.uid=card.uid;
+    node.innerHTML=cardInner(c);
+    attachCardHandlers(node,card);
+    h.appendChild(node);
+  });
+  $('deck-count').textContent='(山札'+R.drawPile.length+')';
+  card_fresh_clear();
+}
+function card_fresh_clear(){R.hand.forEach(c=>c.fresh=false);}
+function cardInner(c){
+  const t=TAGS[c.tag];
+  return `<div class="c-icon">${c.icon}</div>
+    <div class="c-name">${c.name}</div>
+    <div class="c-tag ${t.cls}">${t.label}</div>
+    <div class="c-fx">${fxShort(c.fx)}</div>`;
+}
+function durTxt(d){return d===0?'／ずっと':`／${(d||1)}年`;}
+function fxShort(fx){
+  const p=[];
+  if(fx.env)p.push(`<span class="${fx.env>0?'fx-env':'fx-bad'}">🌍${fx.env>0?'+':''}${fx.env}</span>`);
+  if(fx.load)p.push(`<span class="fx-good">負荷${fx.load>0?'-':'+'}${Math.abs(fx.load)}${durTxt(fx.dur)}</span>`);
+  if(fx.care)p.push(`<span class="fx-good">保全+${fx.care}${durTxt(fx.dur)}</span>`);
+  if(fx.life)p.push(`<span class="${fx.life>0?'fx-life':'fx-bad'}">🏘️${fx.life>0?'+':''}${fx.life}</span>`);
+  return p.join('<br>');
+}
+function comboReady(c){return !!R.lastTag && (c.combo||[]).includes(R.lastTag);}
+
+/* ---------- play a card ---------- */
+/* ---------- ヒロ(相棒キャラ)のヒント ---------- */
+function showHint(){
+  if(!R||R.over||!R.hand.length)return;
+  let best=R.hand[0],bestScore=-Infinity;
+  R.hand.forEach(h=>{
+    const c=cardById(h.id);
+    const dur=c.fx.dur;
+    const weight=dur===0?4:(dur||1);
+    let s=(c.fx.env||0)+(c.fx.load||0)*1.3*weight+(c.fx.care||0)*1.3*weight;
+    if(comboReady(c))s+=3;
+    if(s>bestScore){bestScore=s;best=h;}
+  });
+  const c=cardById(best.id);
+  let msg;
+  if(comboReady(c))msg=`💬 ヒロ「さっきの流れなら、${c.name}がよく効きそう。」`;
+  else if(c.fx.dur===0)msg=`💬 ヒロ「${c.name}は、ずっと効く。土台づくりに良さそうだよ。」`;
+  else if((c.fx.env||0)>=4)msg=`💬 ヒロ「今は${c.name}で、一気に押し出すのも手かもね。」`;
+  else msg=`💬 ヒロ「${c.name}が、今のところ一番手堅いと思う。」`;
+  if(!S.flags.hiroIntro){S.flags.hiroIntro=true;save();msg=`💬 ヒロ「はじめまして。困ったら、いつでも声かけて。」<br>`+msg;}
+  setLog(msg,true);
+}
+
+async function playCardByUid(uid,dropX,dropY){
+  if(R.busy||R.over)return;
+  const idx=R.hand.findIndex(c=>c.uid===uid);if(idx<0)return;
+  const preCard=R.hand[idx];const preC=cardById(preCard.id);
+  if(chapter2Active()&&isPermanentCard(preC)&&permanentSlotItems(preC.tag).length>=slotCap()){
+    R.busy=true;
+    const picked=await chooseSlotSwap(preC.tag,preC.name);
+    const arrIdx=picked.arr.indexOf(picked.mod);if(arrIdx>=0)picked.arr.splice(arrIdx,1);
+    updateBoard();
+    R.busy=false;
+  }
+  if(R.busy||R.over)return;
+  R.busy=true;$('hand').classList.add('wait');
+  const card=R.hand[idx];const c=cardById(card.id);
+  R.hand.splice(idx,1);
+  // combo
+  const combo=comboReady(c);
+  await applyFx(c.fx,c.name,dropX,dropY,c.tag);
+  if(combo){R.env=clampv(R.env+3);popAt('🌍+3 コンボ!','#f5c451',dropX,dropY-30);setLog(`<span class="combo">コンボ成立！</span> ${c.name} が連鎖した。`,true);}
+  else setLog(`<b>${c.name}</b> を実行した。`);
+  R.playedTags.push(c.tag);
+  R.lastTag=c.tag;
+  S.tagTally[c.tag]=(S.tagTally[c.tag]||0)+1;
+  if(R.tagBoost&&c.tag===R.tagBoost&&R.tagBoostLeft>0){R.env=clampv(R.env+2);R.tagBoostLeft--;popAt('🌍+2','#a88be8',dropX+20,dropY);}
+  updateBoard();
+  await wait(360);
+  if(c.chain){
+    setLog('<span class="combo">🔗 年を消費せず、続けてもう1枚出せる。</span>',true);
+    if(R.drawPile.length===0)R.drawPile=shuffle(R.m.deck);
+    drawOne(false);renderHand();updateBoard();
+    R.busy=false;$('hand').classList.remove('wait');
+    return;
+  }
+  await advanceYear();
+  R.busy=false;$('hand').classList.remove('wait');
+}
+
+async function applyFx(fx,label,x,y,tag){
+  if(!fx)return;
+  if(typeof fx.env==='number'){R.env=clampv(R.env+fx.env);popAt(`🌍${fx.env>0?'+':''}${fx.env}`,fx.env>0?'#5fc7f0':'#ff6b4a',x,y);await wait(120);}
+  if(typeof fx.life==='number'){R.life=clampv(R.life+fx.life);popAt(`🏘️${fx.life>0?'+':''}${fx.life}`,fx.life>0?'#f5c451':'#ff6b4a',(x||170)+30,y);await wait(120);}
+  if(typeof fx.load==='number'){R.loadMods.push({amt:fx.load,left:fx.dur===0?Infinity:(fx.dur||1),tag:tag||null,name:label||null});}
+  if(typeof fx.care==='number'){R.careMods.push({amt:fx.care,left:fx.dur===0?Infinity:(fx.dur||1),tag:tag||null,name:label||null});}
+  if(fx.boostTag){R.tagBoost=fx.boostTag;R.tagBoostLeft=2;}
+  updateBoard();
+}
+
+/* ---------- 恒久効果スロット制(タグごとにSLOT_CAP枠) ---------- */
+const SLOT_CAP=3;
+/* ---------- ティッピングポイント(不可逆な転換点) ---------- */
+const TIP_THRESHOLD=15;
+const TIP_PENALTY=2;
+/* ---------- 章立て：3傷クリアでスロット制・ティッピングポイントが解禁 ---------- */
+const CHAPTER2_AT=3;
+function chapter2Active(){return totalCleared()>=CHAPTER2_AT;}
+/* ---------- スキルツリー(ドメインを1つ治しきるごとに1ポイント) ---------- */
+const SKILLS=[
+ {id:'deckEdit',name:'デッキの編集',cost:1,desc:'手に入れたカードを、挑戦ごとに<b>入れる／外す</b>できるようになる。'},
+ {id:'breath',name:'深い呼吸',cost:1,desc:'挑戦を始めたときの「くらし」が、はじめから+3。'},
+ {id:'line',name:'ゆずれない一線',cost:1,desc:'ティッピングポイントの閾値が5下がり、超えにくくなる。'},
+ {id:'bighand',name:'大きな手',cost:2,desc:'手札の上限が1枚増える。'},
+ {id:'keeneye',name:'たしかな目',cost:2,desc:'「ずっと」続く効果の枠が、タグごとに1つ増える。'},
+ {id:'chain2',name:'見通す力',cost:2,desc:'チェインカード「見通す力」を手に入れる。年を消費せず、続けてもう1枚出せる。'},
+];
+/* ---------- 機能の順次解放（開始〜初回クリアで4つを順に手渡す） ----------
+   deck → skill → synth → chain の順。各リビールは「すぐ使える状態」で渡す。 */
+const REVEALS={
+ skill:{icon:'🌟',title:'スキルポイントを手に入れた',
+  body:'傷を治すたびに、あなた自身が強くなる。<br>まずは<b>「デッキの編集」</b>を手に入れよう。手に入れたカードを、挑戦ごとに選べるようになる。',
+  cta:'スキルを見てみる',open:()=>openSkillTree()},
+ deckUnlocked:{icon:'🃏',title:'デッキを組み替えられる',
+  body:'手に入れたカードは、挑戦ごとに<b>入れる／外す</b>を選べる。<br>山札を絞れば、切りたいカードが手に来やすくなる。',
+  cta:'デッキを見てみる',open:()=>openDeckEditor()},
+ synth:{icon:'🔬',title:'カードを合成できる',
+  body:'使わないカードが2枚あれば、<b>まだ持っていないカード</b>1枚に作り変えられる。<br>余りものが、次の切り札になる。<br><span style="color:var(--gold)">素材として「学びの記録」を1枚受け取った。</span>',
+  cta:'合成を見てみる',open:()=>openSynth()},
+ chain:{icon:'🔗',title:'チェインカードを手に入れた',
+  body:'「つなぎの手」を手に入れた。<br>このカードは<b>年を消費しない</b>——出したあと、続けてもう1枚打てる。',
+  cta:'カード帳で見てみる',open:()=>openCollection()},
+};
+function revealDone(k){return !!(S.flags.reveals&&S.flags.reveals[k]);}
+function showReveal(k,onClose){
+  if(revealDone(k)){if(onClose)onClose();return;}
+  if(!S.flags.reveals)S.flags.reveals={};
+  S.flags.reveals[k]=true;
+  if(k==='synth'&&!S.owned.includes('l01'))S.owned.push('l01'); // 合成の素材を1枚渡す
+  if(k==='chain'&&!S.owned.includes('ch01'))S.owned.push('ch01');
+  save();renderHome();
+  const r=REVEALS[k];const box=$('modal-box');
+  box.innerHTML=`<div class="reveal-icon">${r.icon}</div>
+    <h3 class="reveal-title">${r.title}</h3>
+    <div class="rule-body" style="text-align:center">${r.body}</div>`;
+  const bOpen=elx('button','btn gold');bOpen.textContent=r.cta;
+  bOpen.onclick=()=>{$('modal-bg').classList.remove('show');setTimeout(()=>{r.open();},220);};
+  box.appendChild(bOpen);
+  const bLater=elx('button','btn ghost');bLater.textContent='あとで';
+  bLater.onclick=()=>{$('modal-bg').classList.remove('show');if(onClose)setTimeout(onClose,220);};
+  box.appendChild(bLater);
+  $('modal-bg').classList.add('show');
+}
+function handCap(){return 4+(S.skills.bighand?1:0);}
+function slotCap(){return SLOT_CAP+(S.skills.keeneye?1:0);}
+function tipThreshold(){return Math.max(0,TIP_THRESHOLD-(S.skills.line?5:0));}
+function skillGrant(id){
+  if(id==='chain1'&&!S.owned.includes('ch01'))S.owned.push('ch01');
+  if(id==='chain2'&&!S.owned.includes('ch02'))S.owned.push('ch02');
+}
+function permanentSlotItems(tag){
+  const items=[];
+  R.loadMods.forEach(m=>{if(m.tag===tag&&m.left===Infinity)items.push({mod:m,arr:R.loadMods,label:(m.name||'？')+`（負荷-${m.amt}）`});});
+  R.careMods.forEach(m=>{if(m.tag===tag&&m.left===Infinity)items.push({mod:m,arr:R.careMods,label:(m.name||'？')+`（保全+${m.amt}）`});});
+  return items;
+}
+function isPermanentCard(c){return !!(c.fx&&c.fx.dur===0&&(typeof c.fx.load==='number'||typeof c.fx.care==='number'));}
+function chooseSlotSwap(tag,newCardName){
+  return new Promise(res=>{
+    const items=permanentSlotItems(tag);
+    const box=$('modal-box');
+    box.innerHTML=`<h3>${TAGS[tag].label}の枠がいっぱいです</h3>
+      <div class="rule-body" style="text-align:center">「${newCardName}」を設置するには、いまある効果をひとつ入れ替える必要があります。</div>`;
+    items.forEach(it=>{
+      const b=elx('button','btn ghost');b.textContent=`${it.label} を入れ替える`;
+      b.onclick=()=>{$('modal-bg').classList.remove('show');res(it);};
+      box.appendChild(b);
+    });
+    $('modal-bg').classList.add('show');
+  });
+}
+
+async function advanceYear(){
+  // yearly environment change
+  const net=forecastNet();
+  R.env=clampv(R.env+net);
+  if(net!==0){popAt(`🌍${net>0?'+':''}${net}`,net>0?'#3fd6a3':'#ff6b4a',150,110);flashEnv();}
+  // decay durational mods
+  R.loadMods.forEach(m=>m.left--);R.loadMods=R.loadMods.filter(m=>m.left>0);
+  R.careMods.forEach(m=>m.left--);R.careMods=R.careMods.filter(m=>m.left>0);
+  updateBoard();
+  await wait(220);
+  // ティッピングポイント(不可逆な転換点)
+  const tipAt=R.m.tipPoint!=null?R.m.tipPoint:tipThreshold();
+  if(chapter2Active()&&!R.tipped&&R.env<tipAt){
+    R.tipped=true;
+    setLog('<span class="combo">⚠️ ティッピングポイントを超えた……</span>',true);
+    await showEventModal({icon:'⚠️',name:'ティッピングポイント',
+      text:'傷みが、取り返しのつかない段階を越えてしまった。これ以降、毎年の負荷は元には戻らず重くなる。',
+      fx:{load:-TIP_PENALTY,dur:0},
+      fact:'生態系には「転換点(ティッピングポイント)」と呼ばれる閾値があります。一度超えると、回復にとても長い時間がかかったり、元の状態には戻れなくなったりすることがあります。'});
+    updateBoard();
+  }
+  // dilemma?
+  if(R.m.dilemma&&R.m.dilemma.turn===R.turn&&!R.dilemmaDone){R.dilemmaDone=true;await showDilemma(R.m.dilemma);}
+  // events this turn
+  const evs=(R.m.events||[]).filter(e=>e.turn===R.turn);
+  for(const ev of evs){await showEventModal(ev);}
+  // 澱の一手(対抗勢力AI)
+  const bossMoves=(R.m.boss&&R.m.boss.moves||[]).filter(mv=>mv.turn===R.turn);
+  for(const mv of bossMoves){
+    setLog(`<span class="combo">🌑 ${R.m.boss.name}が動いた……</span>`,true);
+    await showEventModal(mv);
+  }
+  // life bottom-out
+  if(R.life<=0){return finishMission(false,'くらしが立ち行かなくなった……');}
+  // next year
+  R.turn++;
+  renderPips();
+  if(R.turn>R.maxTurns){
+    const win=R.env>=R.m.envTarget&&(!R.m.lifeTarget||R.life>=R.m.lifeTarget);
+    return finishMission(win, win?'':'期限までに目標へ届かなかった……');
+  }
+  drawOne(false);renderHand();updateBoard();
+}
+
+/* ---------- event modal (Promise, dilemma型) ---------- */
+function impactChips(fx){
+  const out=[];
+  if(fx&&typeof fx.env==='number')out.push(chip(`🌍 環境 ${fx.env>0?'+':''}${fx.env}`,fx.env>0?'good':'bad'));
+  if(fx&&typeof fx.life==='number')out.push(chip(`🏘️ くらし ${fx.life>0?'+':''}${fx.life}`,fx.life>0?'good':'bad'));
+  if(fx&&typeof fx.care==='number')out.push(chip(`保全 +${fx.care}${fx.dur===0?'(ずっと)':(fx.dur?'('+fx.dur+'年)':'')}`,'good'));
+  if(fx&&typeof fx.load==='number')out.push(chip(`負荷 ${fx.load>0?'-':'+'}${Math.abs(fx.load)}${fx.dur===0?'(ずっと)':(fx.dur?'('+fx.dur+'年)':'')}`,fx.load>0?'good':'bad'));
+  if(fx&&fx.boostTag)out.push(chip(`${TAGS[fx.boostTag].label}カードに追い風`,'boost'));
+  return out;
+}
+function chip(text,kind){const s=elx('span','ev-imp '+kind);s.textContent=text;return s;}
+function showEventModal(ev){
+  return new Promise(res=>{
+    $('ev-icon').textContent=ev.icon;$('ev-name').textContent=ev.name;$('ev-text').textContent=ev.text;
+    const imp=$('ev-impact');imp.innerHTML='';impactChips(ev.fx).forEach(c=>imp.appendChild(c));
+    const ft=$('ev-fact');if(ev.fact){ft.style.display='';ft.textContent=ev.fact;}else ft.style.display='none';
+    $('event-bg').classList.add('show');
+    $('btn-ev-ok').onclick=async()=>{
+      $('btn-ev-ok').onclick=null;$('event-bg').classList.remove('show');
+      await wait(180);await applyFx(ev.fx,ev.name,120,120);setLog(`できごと：<b>${ev.name}</b>`);updateBoard();await wait(160);res();
+    };
+  });
+}
+function showDilemma(d){
+  return new Promise(res=>{
+    $('dl-title').textContent=d.title;$('dl-text').textContent=d.text;
+    const box=$('dl-opts');box.innerHTML='';
+    d.opts.forEach(o=>{
+      const b=elx('button','dl-opt');
+      b.innerHTML=`<div class="o-name">${o.name}</div><div class="o-fx">${o.fxText}</div>`;
+      b.onclick=async()=>{
+        box.querySelectorAll('button').forEach(x=>x.disabled=true);
+        $('dilemma-bg').classList.remove('show');await wait(160);
+        await applyFx(o.fx,o.name,120,120);
+        if(o.after)setLog(o.after,true);updateBoard();await wait(160);res();
+      };
+      box.appendChild(b);
+    });
+    $('dilemma-bg').classList.add('show');
+  });
+}
+
+/* ---------- popups / log ---------- */
+function popAt(text,color,x,y){
+  const board=$('board');if(!board)return;
+  const p=elx('div','pop');p.textContent=text;p.style.color=color;
+  const rect=board.getBoundingClientRect();
+  p.style.left=((x!=null?x:rect.width/2))+'px';p.style.top=((y!=null?y:rect.height/2))+'px';
+  board.appendChild(p);setTimeout(()=>p.remove(),FASTON()?60:1500);
+  if(text.includes('-')){board.classList.add('shake');setTimeout(()=>board.classList.remove('shake'),500);}
+}
+function setLog(html,hi){const l=$('log-line');if(l){l.innerHTML=html;l.style.color=hi?'#ecf1ff':'';}}
+function flashEnv(){const ec=$('board-svg')&&$('board-svg').querySelector('#env-circle');if(!ec)return;ec.classList.remove('flash');void ec.getBoundingClientRect&&ec.getBoundingClientRect();ec.classList.add('flash');setTimeout(()=>ec.classList.remove('flash'),FASTON()?20:800);}
+
+/* =====================================================
+   UI OVERLAYS — drag / sheets / letter / result
+===================================================== */
+let drag=null;
+function attachCardHandlers(node,card){
+  let moved=false,sx=0,sy=0;
+  const onDown=e=>{
+    if(R.busy||R.over)return;
+    const pt=e.touches?e.touches[0]:e;sx=pt.clientX;sy=pt.clientY;moved=false;
+    drag={card,node,gx:pt.clientX,gy:pt.clientY};
+    document.addEventListener('pointermove',onMove,{passive:false});
+    document.addEventListener('pointerup',onUp);
+    e.preventDefault();
+  };
+  const onMove=e=>{
+    if(!drag)return;const pt=e;const dx=pt.clientX-sx,dy=pt.clientY-sy;
+    if(!moved&&Math.hypot(dx,dy)>10){moved=true;startGhost();node.classList.add('dragging-src');}
+    if(moved){moveGhost(pt.clientX,pt.clientY);hotBoard(pt.clientX,pt.clientY);e.preventDefault();}
+  };
+  const onUp=e=>{
+    document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);
+    if(!drag)return;
+    if(moved){
+      const b=$('board').getBoundingClientRect();
+      const over=e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom;
+      $('board').classList.remove('drop-hot');node.classList.remove('dragging-src');
+      const gx=e.clientX,gy=e.clientY;const bx=gx-b.left,by=gy-b.top;
+      hideGhost();
+      const d=drag;drag=null;
+      if(over)playCardByUid(d.card.uid,bx,by);else renderHand();
+    }else{drag=null;openCardSheet(card);}
+  };
+  node.addEventListener('pointerdown',onDown);
+}
+function startGhost(){const g=$('drag-ghost');g.innerHTML=`<div class="card">${cardInner(cardById(drag.card.id))}</div>`;g.style.display='block';}
+function moveGhost(x,y){const g=$('drag-ghost');g.style.left=x+'px';g.style.top=y+'px';}
+function hideGhost(){$('drag-ghost').style.display='none';}
+function hotBoard(x,y){const b=$('board').getBoundingClientRect();const over=x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom;$('board').classList.toggle('drop-hot',over);}
+
+/* ---------- card detail sheet ---------- */
+let sheetCard=null;
+function openCardSheet(card){
+  const c=cardById(card.id);sheetCard=card;
+  $('d-icon').textContent=c.icon;$('d-name').textContent=c.name;
+  const t=TAGS[c.tag];$('d-tag').textContent=t.label;$('d-tag').className='d-tag '+t.cls;
+  $('d-desc').textContent=c.desc;
+  $('d-fx').innerHTML=fxLong(c.fx);
+  const combos=(c.combo||[]).map(x=>TAGS[x].label).join('・');
+  $('d-combo').innerHTML=combos?`🔗 直前に <b>${combos}</b> のカードを出しておくと <span style="color:var(--gold)">コンボ</span>！`:'';
+  if(chapter2Active()&&isPermanentCard(c)&&R){
+    const n=permanentSlotItems(c.tag).length;
+    $('d-slot').innerHTML=`🧩 ${t.label}の「ずっと」枠：<b>${n} / ${slotCap()}</b>${n>=slotCap()?'（設置には入れ替えが必要）':''}`;
+  }else{$('d-slot').innerHTML='';}
+  $('d-fact').textContent=c.fact;
+  $('sheet-bg').classList.add('show');
+}
+function fxLong(fx){
+  const rows=[];
+  if(fx.env)rows.push(`🌍 環境が <b class="${fx.env<0?'bad':''}">${fx.env>0?'+':''}${fx.env}</b>`);
+  if(fx.life)rows.push(`🏘️ くらしが <b class="${fx.life<0?'bad':''}">${fx.life>0?'+':''}${fx.life}</b>`);
+  if(fx.load)rows.push(`⬇️ 毎年の負荷を <b class="${fx.load<0?'bad':''}">${fx.load>0?'-':'+'}${Math.abs(fx.load)}</b>${durText(fx)}`);
+  if(fx.care)rows.push(`⬆️ 毎年の保全を <b>+${fx.care}</b>${durText(fx)}`);
+  if(fx.boostTag)rows.push(`💨 ${TAGS[fx.boostTag].label}カードに追い風`);
+  return rows.join('<br>');
+}
+function durText(fx){if(fx.load==null&&fx.care==null)return '';if(fx.dur===0)return '（ずっと）';if(fx.dur)return `（${fx.dur}年）`;return '（1年）';}
+
+/* ---------- mission brief ---------- */
+let briefMission=null;
+function openBrief(m){
+  briefMission=m;
+  $('b-icon').textContent=m.icon;$('b-name').textContent=m.name;$('b-axis').textContent=m.axis;
+  $('b-desc').textContent=m.desc;
+  let g=`<div class="goal-row"><b>🎯 目標</b><div>${m.turns}年以内に、環境を <b>${m.envTarget}</b> 以上へ。`;
+  if(m.lifeTarget)g+=` さらに くらしを <b>${m.lifeTarget}</b> 以上に保って。`;
+  g+='</div></div>';
+  g+=`<div class="goal-row"><b>⚠️ 難所</b><div>毎年 負荷 ${m.baseLoad}／保全 ${m.baseCare} から始まる${m.loadGrow?'。放置すると負荷は年々増える。':'。'} カードで流れを変えよう。</div></div>`;
+  const res=RESIDENTS[m.domain];
+  if(res&&m.part===1){
+    g+=`<div class="goal-row resident-row"><b>🧑 ${res.name}（${res.role}）</b><div>${res.front}</div></div>`;
+  }
+  $('b-goals').innerHTML=g;
+  $('brief-bg').classList.add('show');
+  $('btn-brief-deck').style.display=S.skills.deckEdit?'':'none';
+  $('btn-brief-deck').classList.toggle('pulse',!S.flags.deckOpened&&!!S.skills.deckEdit);
+}
+
+/* ---------- domain sheet (前編/後編選択) ---------- */
+let domSheetKey=null;
+function openDomainSheet(dom){
+  domSheetKey=dom;const d=DOMAINS[dom];
+  $('dh-icon').textContent=d.icon;$('dh-name').textContent=d.name;
+  $('dh-axis').textContent='プラネタリーバウンダリー';
+  $('dh-desc').textContent=d.desc;
+  const list=$('dh-list');list.innerHTML='';
+  domainMissions(dom).forEach(m=>{
+    const st=missionState(m);
+    const row=elx('button','mrow '+st);
+    const badge=st==='done'?'✅':st==='avail'?'🔓':'🔒';
+    const sub=st==='locked'?(m.unlockReason?'？？？（まだ解放されていない）':'先に他の傷を治すと解放される'):m.axis;
+    const stt=st==='done'?(S.stars[m.id]?starText(S.stars[m.id]):'修復ずみ'):st==='avail'?'挑戦できる':'未解放';
+    row.innerHTML=`<span class="mr-badge">${badge}</span>
+      <div><div class="mr-name">${m.part===1?'前編':'後編'}　${m.name}</div><div class="mr-sub">${sub}</div></div>
+      <span class="mr-state">${stt}</span>`;
+    if(st!=='locked')row.onclick=()=>{$('dom-bg').classList.remove('show');openBrief(m);};
+    list.appendChild(row);
+  });
+  $('dom-bg').classList.add('show');
+}
+
+/* ---------- letter (全行自動表示・閉じるボタン常時) ---------- */
+function showLetter(data,onClose){
+  const box=$('letter-lines');box.innerHTML='';
+  const lines=data.lines.slice();
+  lines.forEach(l=>{
+    const div=elx('div','l-line'+(l.w?' whisper':''));div.textContent=l.t;box.appendChild(div);
+  });
+  if(data.sign){const s=elx('div','l-sign');s.textContent=data.sign;box.appendChild(s);}
+  $('letter-bg').classList.add('show');
+  // reveal sequentially but close button is ALWAYS visible/enabled
+  const nodes=[...box.querySelectorAll('.l-line, .l-sign')];
+  let i=0;const step=()=>{if(i<nodes.length){nodes[i].classList.add('on');i++;setTimeout(step,FASTON()?4:340);}};
+  setTimeout(step,FASTON()?2:120);
+  $('btn-letter-close').onclick=()=>{
+    // if not all shown yet, first click reveals all; but never blocks closing
+    if(nodes.some(n=>!n.classList.contains('on'))){nodes.forEach(n=>n.classList.add('on'));}
+    $('letter-bg').classList.remove('show');$('btn-letter-close').onclick=null;if(onClose)onClose();
+  };
+}
+
+/* ---------- mission letter (ps) ---------- */
+function missionPsLines(m){
+  if(!m.ps)return null;
+  const lines=m.ps.split('\n').map(t=>({t}));
+  if(m.psStance&&S.stance&&m.psStance[S.stance])lines.push({t:m.psStance[S.stance],w:true});
+  return {lines,sign:'　　　　　　　　　　差出人より'};
+}
+
+/* ---------- result ---------- */
+function finishMission(win,detail){
+  R.over=true;R.busy=false;
+  const wasCleared=isCleared(R.m.id);
+  const before=S.cleared.slice();
+  let unlocked=[];
+  let starsEarned=0;
+  let skillPtGained=false;
+  let firstClear=false;
+  if(win){
+    starsEarned=missionStars(R);
+    const prevStars=S.stars[R.m.id]||0;
+    if(starsEarned>prevStars)S.stars[R.m.id]=starsEarned;
+    starsEarned=Math.max(starsEarned,prevStars);
+    if(!wasCleared){
+      const domBefore=domainMissionsCleared(R.m.domain);
+      S.cleared.push(R.m.id);
+      unlocked=newlyUnlocked(before,S.cleared);
+      const domAfter=domainMissionsCleared(R.m.domain);
+      if(domBefore<2&&domAfter>=2){S.skillPts=(S.skillPts||0)+1;skillPtGained=true;}
+      // はじめての修復では、その場でスキルポイントを1つ渡す（スキルツリーの解放）
+      if(S.cleared.length===1&&!revealDone('skill')){S.skillPts=(S.skillPts||0)+1;firstClear=true;}
+    }
+  }
+  save();
+  // 失敗リカバリー：はじめて失敗したミッションごとに教訓カードを1枚
+  let lessonCard=null;
+  if(!win){
+    if(!S.flags.lessonGiven)S.flags.lessonGiven={};
+    if(!S.flags.lessonGiven[R.m.id]){
+      const avail=LESSON_POOL.filter(id=>!S.owned.includes(id));
+      if(avail.length){
+        const lid=avail[Math.floor(Math.random()*avail.length)];
+        S.owned.push(lid);S.flags.lessonGiven[R.m.id]=true;save();
+        lessonCard=cardById(lid);
+      }
+    }
+  }
+  $('r-stamp').className='stamp '+(win?'win':'lose');
+  $('r-stamp').textContent=win?'修復 完了':'再挑戦';
+  $('r-detail').innerHTML=win
+    ?`環境 ${R.env} ／ くらし ${R.life}。この傷は、ふさがった。<br><span class="stars">${starText(starsEarned)}</span>${skillPtGained?'<br>✨ この域の傷をすべて治し、<b>スキルポイント</b>を1つ得た。':''}${firstClear?'<br>✨ はじめての修復で、<b>スキルポイント</b>を1つ得た。':''}${(win&&R.m.boss&&R.m.boss.finale)?'<br>🌑 澱の気配が、ついに晴れた。':''}`
+    :(detail||'目標に届かなかった。');
+  $('r-learn').innerHTML=`<h4>📖 この傷が教えてくれたこと</h4>${R.m.learn}`;
+  if(win&&R.m.part===2&&RESIDENTS[R.m.domain]){
+    const res=RESIDENTS[R.m.domain];
+    $('r-learn').innerHTML+=`<div class="goal-row resident-row" style="margin-top:10px"><b>🧑 ${res.name}（${res.role}）</b><div>${res.back}</div></div>`;
+  }
+  const rw=$('r-reward');const row=$('r-reward-row');row.innerHTML='';
+  const rwLabel=$('r-reward-label');
+  const acts=$('r-actions');acts.innerHTML='';
+  const goHomeNow=()=>{closeResult();gotoHome(unlocked);};
+
+  // 報酬：初クリア（最終ミッション以外）で未所持プールから2枚提示
+  const picks=(win&&!wasCleared&&!R.m.finale)
+    ? shuffle(REWARD_POOL.filter(id=>!S.owned.includes(id))).slice(0,2) : [];
+
+  if(picks.length){
+    rw.style.display='';
+    rwLabel.textContent='✦ どちらか1枚を、旅の仲間に選ぼう ✦';
+    let done=false;
+    picks.forEach(id=>{
+      const c=cardById(id);const node=elx('div','card');node.innerHTML=cardInner(c);
+      node.onclick=()=>{
+        if(done)return;done=true;
+        node.classList.add('picked');
+        row.querySelectorAll('.card').forEach(x=>{if(x!==node)x.classList.add('notpicked');});
+        S.owned.push(id);save();
+        // カードを選んだら詳細モーダルは出さず、ミッション選択画面へ戻る
+        setTimeout(goHomeNow,FASTON()?20:700);
+      };
+      row.appendChild(node);
+    });
+    // 報酬提示中は「選ぶこと」が続行アクション（別途の戻るボタンは出さない）
+  }else if(lessonCard){
+    rw.style.display='';
+    rwLabel.textContent='📔 挑戦の教訓を手に入れた ✦';
+    const node=elx('div','card');node.innerHTML=cardInner(lessonCard);
+    row.appendChild(node);
+    const bRetry=elx('button','btn');bRetry.textContent='もう一度いどむ';
+    bRetry.onclick=()=>{closeResult();startMission(R.m);};acts.appendChild(bRetry);
+    const bHome=elx('button','btn ghost');bHome.textContent='地球へもどる';
+    bHome.onclick=()=>{closeResult();gotoHome([]);};acts.appendChild(bHome);
+  }else{
+    rw.style.display='none';
+    if(win){
+      if(R.m.finale){
+        const b=elx('button','btn');b.textContent='星の声を聴く ▸';b.onclick=()=>{closeResult();triggerEnding();};acts.appendChild(b);
+      }else{
+        const b=elx('button','btn'+(unlocked.length?' gold':''));
+        b.textContent=unlocked.length?'新たな傷が見えた ▸':'地球へもどる';
+        b.onclick=goHomeNow;acts.appendChild(b);
+      }
+    }else{
+      const bRetry=elx('button','btn');bRetry.textContent='もう一度いどむ';
+      bRetry.onclick=()=>{closeResult();startMission(R.m);};acts.appendChild(bRetry);
+      const bHome=elx('button','btn ghost');bHome.textContent='地球へもどる';
+      bHome.onclick=()=>{closeResult();gotoHome([]);};acts.appendChild(bHome);
+    }
+  }
+  $('result-bg').classList.add('show');
+}
+function closeResult(){$('result-bg').classList.remove('show');}
+
+/* ---------- uiConfirm (confirmはサンドボックス不可) ---------- */
+function uiConfirm(title,msg,onYes,yesLabel){
+  const box=$('modal-box');
+  box.innerHTML=`<h3>${title}</h3><div class="rule-body" style="text-align:center">${msg}</div>`;
+  const yes=elx('button','btn');yes.textContent=yesLabel||'はい';
+  yes.onclick=()=>{$('modal-bg').classList.remove('show');onYes&&onYes();};
+  const no=elx('button','btn ghost');no.textContent='やめる';
+  no.onclick=()=>$('modal-bg').classList.remove('show');
+  box.appendChild(yes);box.appendChild(no);
+  $('modal-bg').classList.add('show');
+}
+
+/* =====================================================
+   BOOT — screens / intro / home / menu / ending
+===================================================== */
+const SCREENS=['scr-intro','scr-home','scr-play','scr-ending'];
+function showScreen(id){SCREENS.forEach(s=>{const e=$(s);if(e)e.classList.toggle('active',s===id);});}
+
+function makeStars(){const s=$('stars');if(!s)return;let h='';for(let i=0;i<48;i++){h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*4).toFixed(1)}s"></i>`;}s.innerHTML=h;}
+
+/* ---------- intro ---------- */
+function startIntro(){
+  showScreen('scr-intro');
+  const wrap=$('parcel-wrap');let opened=false;
+  const open=()=>{
+    if(opened)return;opened=true;
+    wrap.classList.add('shake');
+    setTimeout(()=>{
+      wrap.classList.remove('shake');wrap.classList.add('burst');
+      $('intro-earth').innerHTML='<div class="earth-holder">'+earthSVG()+'</div>';
+      setTimeout(()=>$('intro-earth').classList.add('show'),FASTON()?4:320);
+      $('intro-tap').style.display='none';
+      $('intro-cap').innerHTML='ちいさな、青い星。<br>——たしかに、傷ついている。';
+      setTimeout(()=>{
+        showLetter(LETTER_FIRST,()=>{ if(!S.stance)chooseStance(()=>gotoHome([])); else gotoHome([]); });
+      },FASTON()?12:1400);
+    },FASTON()?4:500);
+  };
+  wrap.onclick=open;
+}
+
+/* ---------- stance ---------- */
+function chooseStance(done){
+  const box=$('modal-box');
+  box.innerHTML='<h3>治しかたを、えらぶ</h3><div class="rule-body" style="text-align:center;margin-bottom:4px">この星と、どう向き合う？<br>選んだ流儀は、すべての修復にずっと効きます。</div>';
+  Object.keys(STANCES).forEach(k=>{
+    const s=STANCES[k];const b=elx('button','stance-opt');
+    b.innerHTML=`<div class="s-name">${s.icon} ${s.name}</div><div class="s-desc">${s.desc}</div><div class="s-fx">▸ ${s.fxText}</div>`;
+    b.onclick=()=>{S.stance=k;save();$('modal-bg').classList.remove('show');done&&done();};
+    box.appendChild(b);
+  });
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- home ---------- */
+function renderHome(){
+  $('earth-svg-slot').innerHTML='<div class="earth-holder">'+earthSVG()+'</div>';
+  wireMarkers();
+  const cl=totalCleared(),dm=totalDomainsHealed();
+  $('heal-count').textContent=cl;$('dom-count').textContent=dm;
+  $('heal-fill').style.width=Math.round(globalHealFrac()*100)+'%';
+  const msgs=['どこから治す？　地球にふれてみよう。','傷はまだ残っている。','めぐりが、戻りはじめている。','あと少しで、この星は色を取り戻す。'];
+  const mi=Math.min(msgs.length-1,Math.floor(globalHealFrac()*msgs.length));
+  $('heal-msg').textContent=isGameCleared()?'この星は、青を取り戻した。':msgs[mi];
+  // envelope: 物語の手紙を読み返せる
+  $('envelope').classList.toggle('show', !isGameCleared());
+  $('envelope').onclick=()=>{ showLetter(isGameCleared()?getFinalLetter():LETTER_FIRST); };
+  $('earth-hint').style.display=cl>=MISSIONS.length?'none':'';
+  // 解放済みの機能だけをホームに出す（順次解放で「増えていく」実感をつくる）
+  $('btn-skill').style.display=revealDone('skill')?'':'none';
+  $('btn-skill').textContent=S.skillPts>0?`🌟${S.skillPts}`:'🌟';
+  $('btn-skill').classList.toggle('pulse',S.skillPts>0);
+  $('btn-synth').style.display=revealDone('synth')?'':'none';
+  $('btn-synth').classList.toggle('pulse',!S.flags.synthOpened);
+}
+function wireMarkers(){
+  const svg=$('earth-svg-slot');
+  svg.querySelectorAll('.marker').forEach(g=>{
+    const dom=g.getAttribute('data-dom');
+    const act=()=>{
+      const st=domainState(dom);
+      if(st==='locked'){bumpHint('まだ手が届かない。別の傷を先に治そう。');shakeMarker(g);return;}
+      openDomainSheet(dom);
+    };
+    g.onclick=act;
+    g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}};
+  });
+  const wrap=$('earth-wrap');
+  wrap.onclick=e=>{ if(e.target.closest('.marker'))return; wrap.classList.toggle('inspect'); };
+}
+function shakeMarker(g){g.style.transformOrigin='center';g.animate?g.animate([{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],{duration:300}):0;}
+function bumpHint(t){const h=$('earth-hint');h.textContent=t;h.style.display='';setTimeout(()=>{if($('scr-home').classList.contains('active'))h.textContent='地球にふれて、傷をしらべる';},2200);}
+
+function gotoHome(unlocked){
+  showScreen('scr-home');
+  renderHome();
+  const afterBeams=()=>{
+    if(S.cleared.length>=1&&!revealDone('skill'))setTimeout(()=>showReveal('skill'),FASTON()?10:400);
+  };
+  if(unlocked&&unlocked.length){
+    setTimeout(()=>{fireUnlockBeams(unlocked);setTimeout(afterBeams,FASTON()?10:1400);},FASTON()?10:500);
+  }else{
+    setTimeout(afterBeams,FASTON()?10:300);
+  }
+}
+function fireUnlockBeams(unlocked){
+  const svg=$('earth-svg-slot');const beams=svg&&svg.querySelector('#beams');if(!beams)return;
+  const src=DOMAINS[R.m.domain];
+  let delay=0;
+  unlocked.forEach(id=>{
+    const m=missionById(id);const tgt=DOMAINS[m.domain];
+    const len=Math.hypot(tgt.mx-src.mx,tgt.my-src.my)+1;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','line');
+    path.setAttribute('x1',src.mx);path.setAttribute('y1',src.my);
+    path.setAttribute('x2',tgt.mx);path.setAttribute('y2',tgt.my);
+    path.setAttribute('class','beam');path.setAttribute('stroke-dasharray',len);
+    path.style.setProperty('--blen',len);
+    beams.appendChild(path);
+    setTimeout(()=>{path.classList.add('fire');bumpHint('🔓 '+(m.unlockReason||(DOMAINS[m.domain].name+'の傷が見えた')));},delay);
+    setTimeout(()=>path.remove(),delay+1700);
+    delay+=FASTON()?12:1300;
+  });
+}
+
+/* ---------- ending ---------- */
+function triggerEnding(){
+  const finalLetter=getFinalLetter();
+  showLetter(finalLetter,()=>{
+    showScreen('scr-ending');
+    $('end-earth').innerHTML='<div class="earth-holder">'+earthSVG()+'</div>';
+    $('end-sub').innerHTML='18の傷は、すべてふさがった。<br>あなたの歩みは「'+STYLE_NAME[finalLetter.style]+'」の物語として刻まれた。<br>選んだ流儀は「'+STANCES[S.stance].name+'」。<br>この青は、あなたがくれたもの。';
+  });
+}
+
+/* ---------- スキルツリー ---------- */
+function openSkillTree(){
+  const box=$('modal-box');
+  const deckReady=!!S.skills.deckEdit;
+  box.innerHTML=`<h3>🌟 スキル</h3><div class="rule-body" style="text-align:center;margin-bottom:10px">
+    傷を治した域(前編・後編の両方)ごとに、スキルポイントを1つ得る。<br>
+    のこりポイント：<b>${S.skillPts}</b></div>`;
+  if(!deckReady){
+    box.innerHTML+=`<div class="rule-body" style="text-align:center;color:var(--gold);margin-bottom:10px">
+      まずは「デッキの編集」を手に入れよう。ほかのスキルは、そのあとで。</div>`;
+  }
+  const list=elx('div','skill-list');
+  SKILLS.forEach(sk=>{
+    const owned=!!S.skills[sk.id];
+    const gatedOut=!deckReady&&sk.id!=='deckEdit'&&!owned;
+    const affordable=!owned&&!gatedOut&&S.skillPts>=sk.cost;
+    const row=elx('div','skill-row'+(owned?' owned':'')+(gatedOut?' gated':''));
+    row.innerHTML=`<div class="sk-head"><span class="sk-name">${owned?'✅ ':gatedOut?'🔒 ':''}${sk.name}</span><span class="sk-cost">${owned?'習得ずみ':gatedOut?'あとで':'必要 '+sk.cost}</span></div>
+      <div class="sk-desc">${sk.desc}</div>`;
+    if(affordable){
+      const b=elx('button','btn ghost sk-buy');b.textContent='習得する';
+      b.onclick=()=>{
+        S.skillPts-=sk.cost;S.skills[sk.id]=true;skillGrant(sk.id);save();
+        if(sk.id==='deckEdit'){
+          openSkillTree();
+          setTimeout(()=>showReveal('deckUnlocked'),300);
+        }else{
+          openSkillTree();
+        }
+      };
+      row.appendChild(b);
+    }
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  const close=elx('button','btn ghost');close.textContent='とじる';
+  close.onclick=()=>{$('modal-bg').classList.remove('show');
+    if(deckReady&&!revealDone('synth'))setTimeout(()=>showReveal('synth'),300);};
+  box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- カード合成 ---------- */
+function openSynth(){
+  if(!S.flags.synthOpened){S.flags.synthOpened=true;save();renderHome();}
+  const box=$('modal-box');
+  const material=CARDS.filter(c=>(c.reward||c.lesson||c.chain)&&S.owned.includes(c.id));
+  box.innerHTML=`<h3>🔬 合成</h3><div class="rule-body" style="text-align:center;margin-bottom:10px">
+    手持ちのカードから2枚選んで、新しい1枚に合成する。</div>`;
+  const grid=elx('div','coll-grid');
+  const selected=[];
+  material.forEach(c=>{
+    const node=elx('div','card');node.innerHTML=cardInner(c);
+    node.onclick=()=>{
+      const i=selected.indexOf(c.id);
+      if(i>=0){selected.splice(i,1);node.classList.remove('picked');}
+      else if(selected.length<2){selected.push(c.id);node.classList.add('picked');}
+      confirmBtn.disabled=selected.length!==2;
+    };
+    grid.appendChild(node);
+  });
+  box.appendChild(grid);
+  const confirmBtn=elx('button','btn');confirmBtn.textContent='合成する(2枚えらぶ)';confirmBtn.disabled=true;
+  confirmBtn.onclick=()=>{
+    if(selected.length!==2)return;
+    const pool=[...REWARD_POOL,...LESSON_POOL,...CHAIN_POOL].filter(id=>!S.owned.includes(id)&&!selected.includes(id));
+    if(!pool.length){
+      box.querySelector('.rule-body').insertAdjacentHTML('beforeend','<br><b>これ以上、新しく合成できるカードがない。</b>');
+      return;
+    }
+    selected.forEach(id=>{const i=S.owned.indexOf(id);if(i>=0)S.owned.splice(i,1);});
+    const newId=pool[Math.floor(Math.random()*pool.length)];
+    S.owned.push(newId);save();
+    const c=cardById(newId);
+    box.innerHTML=`<h3>🔬 合成</h3><div class="rule-body" style="text-align:center">新しいカードが生まれた。</div>`;
+    const node=elx('div','card');node.innerHTML=cardInner(c);
+    const wrap=elx('div','coll-grid');wrap.appendChild(node);box.appendChild(wrap);
+    const close=elx('button','btn');close.textContent='とじる';
+    close.onclick=()=>{$('modal-bg').classList.remove('show');
+      if(!revealDone('chain'))setTimeout(()=>showReveal('chain'),300);};
+    box.appendChild(close);
+  };
+  box.appendChild(confirmBtn);
+  const close=elx('button','btn ghost');close.textContent='とじる';
+  close.onclick=()=>{$('modal-bg').classList.remove('show');
+    if(!revealDone('chain'))setTimeout(()=>showReveal('chain'),300);};
+  box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- デッキ編集(手持ちカードの出し入れ) ---------- */
+function openDeckEditor(){
+  if(!S.flags.deckOpened){S.flags.deckOpened=true;save();renderHome();}
+  const box=$('modal-box');
+  const owned=CARDS.filter(c=>(c.reward||c.lesson||c.chain)&&S.owned.includes(c.id));
+  const inCount=owned.filter(c=>!S.deckExclude.includes(c.id)).length;
+  const baseIds=briefMission?briefMission.deck:[];
+  const baseUniq=[...new Set(baseIds)];
+  box.innerHTML=`<h3>🃏 デッキを編集</h3><div class="rule-body" style="text-align:center;margin-bottom:10px">
+    この挑戦の山札は <b>${baseIds.length + inCount}</b> 枚。<br>
+    ${owned.length?`手持ちのカードは、タップで<b>入れる／外す</b>を切り替えられる。（いま ${inCount} / ${owned.length} 枚を投入中）`:'手持ちのカードが増えると、ここで入れ替えられるようになる。'}</div>`;
+  if(owned.length){
+    const h1=elx('div','deck-sec');h1.textContent='🎒 手持ちのカード（タップで切り替え）';box.appendChild(h1);
+    const grid=elx('div','coll-grid');
+    owned.forEach(c=>{
+      const excluded=S.deckExclude.includes(c.id);
+      const node=elx('div','card'+(excluded?' locked-card':''));
+      node.innerHTML=cardInner(c);
+      node.onclick=()=>{
+        const i=S.deckExclude.indexOf(c.id);
+        if(i>=0)S.deckExclude.splice(i,1);else S.deckExclude.push(c.id);
+        save();openDeckEditor();
+      };
+      grid.appendChild(node);
+    });
+    box.appendChild(grid);
+  }
+  if(baseUniq.length){
+    const h2=elx('div','deck-sec');h2.textContent='📦 この傷にもとから備わるカード（固定）';box.appendChild(h2);
+    const grid2=elx('div','coll-grid');
+    baseUniq.forEach(id=>{
+      const c=cardById(id);const n=baseIds.filter(x=>x===id).length;
+      const node=elx('div','card base-card');
+      node.innerHTML=cardInner(c)+(n>1?`<div class="dup-badge">×${n}</div>`:'');
+      node.onclick=()=>openCardSheet({id});
+      grid2.appendChild(node);
+    });
+    box.appendChild(grid2);
+  }
+  const close=elx('button','btn');close.textContent='とじる';
+  close.onclick=()=>{$('modal-bg').classList.remove('show');$('sheet-bg').classList.remove('show');};
+  box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- collection ---------- */
+function openCollection(){
+  const box=$('modal-box');
+  const baseCards=CARDS.filter(c=>!c.variant);
+  const owned=baseCards.filter(c=>(!c.reward&&!c.lesson&&!c.chain)||S.owned.includes(c.id));
+  const total=baseCards.length,have=owned.length;
+  box.innerHTML=`<h3>🗂️ カード帳</h3><div class="coll-count">${have} / ${total} 種を集めた</div>`;
+  const grid=elx('div','coll-grid');
+  baseCards.forEach(c=>{
+    const locked=(c.reward||c.lesson||c.chain)&&!S.owned.includes(c.id);
+    const node=elx('div','card'+(locked?' locked-card':''));
+    const lockLabel=c.lesson?'教訓':c.chain?'スキル':'報酬';
+    node.innerHTML=locked?`<div class="c-icon">❔</div><div class="c-name">？？？</div><div class="c-tag ${TAGS[c.tag].cls}">${lockLabel}</div><div class="c-fx">${c.lesson?'挑戦の教訓':c.chain?'スキルの実り':'修復の報酬'}</div>`:cardInner(c);
+    if(!locked)node.onclick=()=>openCardSheet({id:c.id});
+    grid.appendChild(node);
+  });
+  box.appendChild(grid);
+  const close=elx('button','btn ghost');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');
+  box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- menu ---------- */
+function openMenu(fromPlay){
+  const box=$('modal-box');box.innerHTML='<h3>メニュー</h3>';
+  const rules=elx('button','btn ghost');rules.textContent='📖 あそびかた';rules.onclick=showRules;box.appendChild(rules);
+  if(fromPlay){const quit=elx('button','btn ghost');quit.textContent='🏳️ 修復を中断して地球へ';
+    quit.onclick=()=>{$('modal-bg').classList.remove('show');uiConfirm('中断しますか？','この傷の進みは失われます。',()=>{R.over=true;gotoHome([]);},'中断する');};box.appendChild(quit);}
+  const reset=elx('button','btn ghost');reset.textContent='🔄 はじめから';
+  reset.onclick=()=>uiConfirm('最初から読み直しますか？','これまでの修復と手紙は、すべて最初に戻ります。',()=>{resetSave();$('modal-bg').classList.remove('show');startIntro();},'最初から');
+  box.appendChild(reset);
+  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+function showRules(){
+  const box=$('modal-box');
+  box.innerHTML=`<h3>あそびかた</h3>
+   <div class="rule-body">
+   🌍 <b>地球</b>の9つのマーカーが、9種類の傷。ふれると<b>前編・後編</b>をえらべます。<br>
+   🃏 手札のカードを<b>盤面へドラッグ</b>して実行。タップで詳しく読めます。<br>
+   📊 <b>環境</b>を目標まで上げれば修復成功。後編は<b>くらし</b>も保つ必要があります。<br>
+   🌤️ 盤面の<b>見通し</b>は、来年の環境の増減。負荷を減らし、保全を増やそう。<br>
+   🔗 <b>直前に出したカード</b>と相性がよいカードを出すと<b>コンボ</b>。<br>
+   🧩 「ずっと」続く効果は、種類ごとに<b>3つまで</b>。いっぱいのときは、ひとつ入れ替えて設置しよう。<br>
+   ⚠️ 環境が下がりすぎると<b>ティッピングポイント</b>を超え、負荷が元に戻らず重くなる。<br>
+   📔 修復に失敗しても、はじめての失敗では<b>教訓カード</b>を手に入れて再挑戦できる。<br>
+   🌑 後編には「澱」が現れる。1年前に気配が見えるので、備えておこう。<br>
+   ⭐ 修復に成功すると、余裕の大きさに応じて<b>評価(★1〜3)</b>がつく。<br>
+   🔓 傷を治すと、つながった<b>別の傷</b>が解放されます(複数のことも)。<br>
+   ✉️ 手紙の謎は、すべての傷を治したときに——。
+   </div>`;
+  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');box.appendChild(close);
+  $('modal-bg').classList.add('show');
+}
+
+/* ---------- wire static buttons ---------- */
+function wireButtons(){
+  $('intro-tap').onclick=()=>{$('parcel-wrap').click();};
+  $('btn-coll').onclick=openCollection;
+  $('btn-skill').onclick=openSkillTree;
+  $('btn-synth').onclick=openSynth;
+  $('btn-home-menu').onclick=()=>openMenu(false);
+  $('btn-menu').onclick=()=>openMenu(true);
+  $('btn-sheet-close').onclick=()=>$('sheet-bg').classList.remove('show');
+  $('btn-sheet-play').onclick=()=>{
+    $('sheet-bg').classList.remove('show');
+    if(sheetCard&&R&&!R.over&&R.hand.some(h=>h.uid===sheetCard.uid)){const b=$('board').getBoundingClientRect();playCardByUid(sheetCard.uid,b.width/2,b.height/2);}
+  };
+  $('btn-dom-close').onclick=()=>$('dom-bg').classList.remove('show');
+  $('btn-brief-close').onclick=()=>$('brief-bg').classList.remove('show');
+  $('btn-brief-go').onclick=()=>{$('brief-bg').classList.remove('show');startMission(briefMission);};
+  $('btn-brief-deck').onclick=openDeckEditor;
+  $('btn-hint').onclick=showHint;
+  $('btn-end-restart').onclick=()=>uiConfirm('はじめから読み直しますか？','すべての修復と手紙が、最初に戻ります。',()=>{resetSave();startIntro();},'最初から');
+}
+
+/* ---------- BOOT ---------- */
+function BOOT(){
+  makeStars();wireButtons();load();
+  if(S.stance&&S.cleared.length>0){gotoHome([]);}
+  else if(S.stance){gotoHome([]);}
+  else{startIntro();}
+}
+
+/* test / debug hooks */
+if(typeof window!=='undefined'){
+  window.STE={
+    get S(){return S;}, get R(){return R;},
+    state:()=>({stance:S.stance,cleared:S.cleared.slice(),owned:S.owned.slice(),
+      run:R?{env:R.env,life:R.life,turn:R.turn,maxTurns:R.maxTurns,over:R.over,busy:R.busy,hand:R.hand.map(h=>h.uid)}:null}),
+    isBusy:()=>!!(R&&R.busy),
+    missionState,domainState,missionById,startMission,openBrief,openDomainSheet,
+    playByUid:(uid,x,y)=>playCardByUid(uid,x||60,y||60),
+    playFirst:()=>{if(R&&R.hand[0])return playCardByUid(R.hand[0].uid,60,60);},
+    setStance:k=>{S.stance=k;save();},
+    forceClear:id=>{if(!S.cleared.includes(id))S.cleared.push(id);save();},
+    gotoHome:()=>gotoHome([]),
+    reset:()=>resetSave(),
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',BOOT);else BOOT();
+}
+
+</script>
+</body>
+</html>
