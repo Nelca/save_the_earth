@@ -28,6 +28,28 @@
   --paper-ink:#41372a;
   --gothic:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic UI','Yu Gothic','Meiryo',sans-serif;
   --mincho:'Hiragino Mincho ProN','Yu Mincho','YuMincho','MS PMincho',serif;
+
+  /* ============================================================
+     重なり順(z-index)一覧 ― 新しいオーバーレイを追加する時は、
+     ここに追記してから値を参照すること。数字が大きいほど手前。
+     個別の要素に直接マジックナンバーを書かず、必ずこの変数を使う。
+     ------------------------------------------------------------
+     --z-bg        背景演出(星空canvas)
+     --z-app       アプリ本体・通常の画面
+     --z-fx        盤面の小さな演出(ポップアップ数値など)
+     --z-envelope  ホーム画面の封筒
+     --z-nav1      ミッション選択の導線(ブリーフ / ドメイン一覧)
+     --z-dilemma   ジレンマ
+     --z-event     できごと
+     --z-result    結果画面
+     --z-letter    手紙
+     --z-list      一覧系モーダル(カード帳・スキル・合成・デッキ編集。#modal-bg)
+     --z-detail    カード詳細シート(#sheet-bg)。一覧系モーダルより必ず手前。
+     --z-drag      ドラッグ中のカード(最前面)
+     ============================================================ */
+  --z-bg:0; --z-app:1; --z-fx:15; --z-envelope:20;
+  --z-nav1:40; --z-dilemma:50; --z-event:52; --z-result:55; --z-letter:60;
+  --z-list:70; --z-detail:75; --z-drag:100;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100%}
@@ -38,9 +60,9 @@ body{
   overflow:hidden;
   user-select:none;-webkit-user-select:none;
 }
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-#bg-grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.045;mix-blend-mode:overlay}
-#app{max-width:560px;margin:0 auto;height:100dvh;position:relative;overflow:hidden;z-index:1}
+#bg-canvas{position:fixed;inset:0;z-index:var(--z-bg);pointer-events:none}
+#bg-grain{position:fixed;inset:0;z-index:var(--z-bg);pointer-events:none;opacity:.045;mix-blend-mode:overlay}
+#app{max-width:560px;margin:0 auto;height:100dvh;position:relative;overflow:hidden;z-index:var(--z-app)}
 @media(min-width:700px){
   #app{box-shadow:0 0 0 1px var(--panel-edge),0 0 120px rgba(10,15,28,.8)}
 }
@@ -83,7 +105,7 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .tap-pulse{font-size:12px;color:var(--ink-dim);animation:tw 1.8s infinite;letter-spacing:.2em}
 
 /* ============ LETTER ============ */
-.letter-bg{position:absolute;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(4,7,18,.8);backdrop-filter:blur(3px)}
+.letter-bg{position:absolute;inset:0;z-index:var(--z-letter);display:none;align-items:center;justify-content:center;background:rgba(4,7,18,.8);backdrop-filter:blur(3px)}
 .letter-bg.show{display:flex}
 .letter{
   width:88%;max-width:420px;max-height:80%;overflow-y:auto;
@@ -140,7 +162,7 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .heal-label b{color:var(--heal)}
 .heal-label .dom{color:var(--sky)}
 
-.envelope{position:absolute;left:50%;bottom:104px;transform:translate(-50%,80px);z-index:20;
+.envelope{position:absolute;left:50%;bottom:104px;transform:translate(-50%,80px);z-index:var(--z-envelope);
   background:linear-gradient(160deg,var(--paper),var(--paper2));color:var(--paper-ink);
   border-radius:12px;padding:12px 20px;display:flex;gap:10px;align-items:center;font-family:var(--mincho);font-size:13.5px;
   box-shadow:0 16px 40px rgba(0,0,0,.55);cursor:pointer;opacity:0;transition:all .6s cubic-bezier(.2,.8,.3,1.2)}
@@ -177,7 +199,6 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .marker .m-ring{transform-box:fill-box;transform-origin:center}
 .marker text{pointer-events:none}
 .spark{fill:#fff6c9;opacity:0}
-.healing .spark{animation:sparkle 1.5s ease-out forwards}
 @keyframes sparkle{0%{opacity:0;transform:scale(.2)}30%{opacity:1}100%{opacity:0;transform:scale(1.8)}}
 .spark{transform-box:fill-box;transform-origin:center}
 /* unlock light beam */
@@ -245,13 +266,11 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 @keyframes comboFlash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
 #f-load,#f-care{transition:stroke-width .6s ease}
 .envnode{transition:stroke .8s ease}
-.node-label-shadow{filter:drop-shadow(0 1px 2px rgba(0,0,0,.9))}
 .bnode-icon{stroke:var(--ink-dim);fill:none;stroke-width:1.6}
 .envnode.flash{animation:envFlash .8s}
 @keyframes envFlash{30%{filter:drop-shadow(0 0 12px var(--heal))}}
-.forecast-chip{transition:opacity .4s}
 
-.pop{position:absolute;font-weight:900;font-size:15px;pointer-events:none;z-index:15;
+.pop{position:absolute;font-weight:900;font-size:15px;pointer-events:none;z-index:var(--z-fx);
   text-shadow:0 2px 8px rgba(0,0,0,.7);animation:popRise 1.5s ease-out forwards;white-space:nowrap}
 @keyframes popRise{0%{opacity:0;transform:translate(-50%,8px) scale(.6)}18%{opacity:1;transform:translate(-50%,-4px) scale(1.15)}30%{transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-46px)}}
 
@@ -306,14 +325,15 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .tag-nature{background:#3ba576}.tag-econ{background:#c25577}
 .hand-tip{font-size:10px;color:var(--ink-dim);text-align:center}
 
-#drag-ghost{position:fixed;z-index:100;pointer-events:none;width:92px;transform:translate(-50%,-60%) rotate(4deg) scale(1.1);
+#drag-ghost{position:fixed;z-index:var(--z-drag);pointer-events:none;width:92px;transform:translate(-50%,-60%) rotate(4deg) scale(1.1);
   filter:drop-shadow(0 16px 24px rgba(0,0,0,.5));display:none}
 #drag-ghost .card{min-height:120px}
-#drag-ghost.flying{transition:left .4s cubic-bezier(.3,.7,.3,1), top .4s cubic-bezier(.3,.7,.3,1), transform .4s, opacity .4s}
 
 /* ============ overlays ============ */
-.sheet-bg{position:absolute;inset:0;background:rgba(4,7,18,.72);z-index:40;display:none;align-items:flex-end;justify-content:center}
-#sheet-bg{z-index:72}
+.sheet-bg{position:absolute;inset:0;background:rgba(4,7,18,.72);display:none;align-items:flex-end;justify-content:center}
+/* 同じ .sheet-bg を使う3要素は役割が異なるため、重なり順は個別に指定する */
+#dom-bg,#brief-bg{z-index:var(--z-nav1)}
+#sheet-bg{z-index:var(--z-detail)} /* 一覧系モーダル(--z-list)の中から開かれても必ず手前に出す */
 .sheet-bg.show{display:flex}
 .sheet{background:var(--panel);border-top:2px solid var(--panel-edge);border-radius:22px 22px 0 0;
   width:100%;max-width:560px;padding:22px 20px calc(20px + env(safe-area-inset-bottom));max-height:82%;overflow-y:auto;
@@ -365,7 +385,7 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .goal-row.resident-row b{color:#a88be8}
 
 /* dilemma + event (shared visual) */
-.dilemma-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.dilemma-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:var(--z-dilemma);display:none;align-items:center;justify-content:center;padding:20px}
 .dilemma-bg.show{display:flex}
 .dilemma{background:linear-gradient(170deg,var(--panel),var(--night2));border:1.5px solid #6a5a9c;border-radius:20px;
   padding:24px 20px;width:100%;max-width:400px;animation:up .35s cubic-bezier(.2,.8,.3,1)}
@@ -379,7 +399,7 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .dl-opt .o-fx{font-size:11px;color:#a89bc4;margin-top:4px;line-height:1.6}
 
 /* event modal */
-.event-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:52;display:none;align-items:center;justify-content:center;padding:20px}
+.event-bg{position:absolute;inset:0;background:rgba(4,7,18,.84);z-index:var(--z-event);display:none;align-items:center;justify-content:center;padding:20px}
 .event-bg.show{display:flex}
 .eventc{background:linear-gradient(170deg,var(--panel),var(--night2));border:1.5px solid var(--panel-edge);border-radius:20px;
   padding:24px 20px;width:100%;max-width:400px;animation:up .35s cubic-bezier(.2,.8,.3,1)}
@@ -397,7 +417,7 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .eventc .btn{width:100%}
 
 /* result */
-.result-bg{position:absolute;inset:0;background:rgba(4,7,18,.85);z-index:55;display:none;align-items:center;justify-content:center;padding:18px}
+.result-bg{position:absolute;inset:0;background:rgba(4,7,18,.85);z-index:var(--z-result);display:none;align-items:center;justify-content:center;padding:18px}
 .result-bg.show{display:flex}
 .result{width:100%;max-width:420px;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:22px;
   padding:26px 22px;text-align:center;animation:up .4s cubic-bezier(.2,.8,.3,1);max-height:88%;overflow-y:auto}
@@ -428,13 +448,12 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 .stance-opt .s-name{font-weight:800;font-size:14.5px}
 .stance-opt .s-desc{font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6}
 .stance-opt .s-fx{font-size:11px;color:var(--heal);margin-top:3px;font-weight:800}
-.m-note{font-size:11.5px;color:var(--ink-dim);text-align:center;line-height:1.8}
 @keyframes flipIn{0%{transform:rotateY(180deg) scale(.4);opacity:0}60%{transform:rotateY(0) scale(1.15)}100%{transform:none}}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .result-actions .btn{padding:12px 22px;font-size:14px}
 
 /* modal */
-.modal-bg{position:absolute;inset:0;background:rgba(4,7,18,.78);z-index:70;display:none;align-items:center;justify-content:center;padding:18px}
+.modal-bg{position:absolute;inset:0;background:rgba(4,7,18,.78);z-index:var(--z-list);display:none;align-items:center;justify-content:center;padding:18px}
 .modal-bg.show{display:flex}
 .modal{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:20px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:11px;max-height:86%;overflow-y:auto}
 .modal h3{font-size:16px;text-align:center;font-family:var(--mincho);letter-spacing:.1em}
@@ -743,6 +762,67 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 
 <script>
 "use strict";
+/* =====================================================================
+   ちいさな地球の治しかた — アーキテクチャ概要
+   ---------------------------------------------------------------------
+   単一HTMLファイル。ビルド不要、そのまま配布・実行できることを優先し、
+   意図的に分割していない。編集時は以下を踏まえること。
+
+   ■ 主要データ構造
+     TAGS       カードのタグ5種(政策/技術/市民/自然/経済)と表示ラベル
+     DOMAINS    プラネタリー・バウンダリー9領域(地球上のマーカー)
+     CARDS      全カード定義(通常/報酬/教訓/チェイン/進化バリアント)
+                cardById() は totalCleared() に応じて進化バリアントを
+                自動解決するので、直接 CARDS.find() しないこと
+     MISSIONS   前編/後編18ミッション。TUNE で難易度を上書きする箇所あり
+     S          セーブされる状態(stance/cleared/owned/skills/flags…)
+     R          1ミッション中だけ生きる一時状態(env/life/hand/turn…)
+
+   ■ オーバーレイ(モーダル/シート)
+     z-index は :root の --z-* 変数で一元管理(CSS冒頭のコメント参照)。
+     開閉は必ず openOverlay(id) / closeOverlay(id) / closeAllOverlays() を
+     使うこと。直接 classList を触らない。
+     過去の不具合：
+       - 同じ .sheet-bg クラスを3要素(#sheet-bg/#dom-bg/#brief-bg)で
+         使い回していたため、z-indexの前提が食い違って一覧モーダルの
+         裏にカード詳細が隠れるバグがあった → 個別のIDで明示的に指定。
+       - ミッション開始時に前の画面のオーバーレイが閉じ切っておらず、
+         残像のように重なって見えるバグがあった → startMission() 冒頭で
+         closeAllOverlays() を呼び安全網にしている。
+
+   ■ 機能解放(リビール)システム
+     showReveal(key, onClose) / advanceRevealChain() で、初回プレイ時に
+     デッキ編集→スキル→合成→チェインカードの順で1つずつ提示する。
+     「次のリビールを見せる」判断は特定のボタンの押され方に依存させず、
+     advanceRevealChain() を各画面の閉じる操作から共通で呼ぶこと
+     (依存させると、途中で別の画面に寄り道された時に連鎖が止まる)。
+
+   ■ 地球(ホーム画面の球体)の実装
+     大陸・雲は同じ絵柄を2枚並べて horizontal に translate させることで
+     「縦軸まわりの自転」を表現している(tilewの分だけ動かしてループ)。
+     円形へのクリップは SVGの clip-path や foreignObject を使わず、
+     普通のHTML <div style="border-radius:50%;overflow:hidden"> を
+     絶対配置する方式にしている。理由：
+       - filter と clip-path の組み合わせはブラウザ・GPU合成の状態
+         (通常モード/シークレットモード等)によって挙動が割れることが
+         実際に確認された。
+       - foreignObject 経由のHTML埋め込みは、Safariでのスケーリング
+         挙動に既知の問題があり、実機で崩れることが確認された。
+     border-radius + overflow:hidden は最も枯れた実装のため、今後も
+     この方式を維持し、SVG側のクリップに戻さないこと。
+
+   ■ カードの見た目
+     .card は角丸を小さくした「物理カード」風デザイン。バッジ類
+     (コンボ!／✨進化)はカード外周からわずかにはみ出す絶対配置なので、
+     .card 自体には overflow:hidden を付けないこと(付けるとバッジが
+     切れて見えなくなる、過去に実際に起きた不具合)。クリップが必要な
+     のはアートエリア(.c-art)側だけ。
+
+   ■ 検証
+     window.STE に主要関数を公開しているのはテスト用フック。
+     test.js〜test11.js（別ファイル）で日本語UIの状態遷移を検証して
+     いるので、構造を変える時はこれらを実行して回帰がないか確認する。
+===================================================================== */
 /* =====================================================
    DATA — tags / stances / domains / cards
 ===================================================== */
@@ -1852,20 +1932,23 @@ function earthSVG(opts){
 }
 
 /* 既存SVG内の彩度veilとマーカー状態だけを更新（再描画せず滑らかに） */
-function paintEarthTint(root){
-  if(!root)return;const f=globalHealFrac();
-  const media=root.querySelector('#globe-media');if(media)media.style.filter=tintFilter(f);
-  root.querySelectorAll('.globe-tint').forEach(el=>{
-    if(el.style.mixBlendMode==='saturation'||el.getAttribute('style')?.includes('saturation')){el.style.opacity=((1-f)*0.5).toFixed(2);}
-    else{el.style.opacity=(0.4+f*0.6).toFixed(2);}
-  });
-}
-
 /* =====================================================
    ENGINE PLAY — board / cards / turns
 ===================================================== */
 const $=id=>document.getElementById(id);
 function elx(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+/* ---------- オーバーレイ(モーダル/シート)の開閉 ----------
+   直接 classList.add('show') / remove('show') を書かず、必ずここを通すこと。
+   理由：過去に「閉じ忘れて裏に別のモーダルが残る」「z-indexが噛み合わない」
+   といった不具合が繰り返し起きたため。新しいオーバーレイを増やす場合も
+   このヘルパー経由にし、IDは OVERLAY_IDS に追記する。 */
+const OVERLAY_IDS=['sheet-bg','dom-bg','brief-bg','dilemma-bg','event-bg','result-bg','letter-bg','modal-bg'];
+function openOverlay(id){const e=$(id);if(e)e.classList.add('show');}
+function closeOverlay(id){const e=$(id);if(e)e.classList.remove('show');}
+/* 画面遷移など「とにかく全部閉じておきたい」時に使う安全網。個別のexceptは除外できる。 */
+function closeAllOverlays(except){
+  OVERLAY_IDS.forEach(id=>{if(id!==except)closeOverlay(id);});
+}
 /* ---------- 背景の星空(canvas。写真は使わずprocedural生成) ---------- */
 function sizeBgCanvas(){
   const c=$('bg-canvas');if(!c)return;
@@ -1907,7 +1990,7 @@ let R=null;
 
 function startMission(m){
   // 残留オーバーレイ(カード詳細シートなど)が開いたままにならないよう、開始時に必ず閉じる
-  ['sheet-bg','modal-bg','brief-bg','dilemma-bg','event-bg'].forEach(id=>{const e=$(id);if(e)e.classList.remove('show');});
+  closeAllOverlays();
   R={m,env:m.envStart,life:m.lifeStart+(S.stance==='bond'?6:0)+(S.skills.breath?3:0),
      baseLoad:m.baseLoad,baseCare:m.baseCare,loadGrow:m.loadGrow||0,
      turn:1,maxTurns:m.turns,loadMods:[],careMods:[],playedTags:[],lastTag:null,tipped:false,
@@ -2235,12 +2318,12 @@ function showReveal(k,onClose){
     <h3 class="reveal-title">${r.title}</h3>
     <div class="rule-body" style="text-align:center">${r.body}</div>`;
   const bOpen=elx('button','btn gold');bOpen.textContent=r.cta;
-  bOpen.onclick=()=>{$('modal-bg').classList.remove('show');setTimeout(()=>{r.open();},220);};
+  bOpen.onclick=()=>{closeOverlay('modal-bg');setTimeout(()=>{r.open();},220);};
   box.appendChild(bOpen);
   const bLater=elx('button','btn ghost');bLater.textContent='あとで';
-  bLater.onclick=()=>{$('modal-bg').classList.remove('show');if(onClose)setTimeout(onClose,220);else setTimeout(advanceRevealChain,220);};
+  bLater.onclick=()=>{closeOverlay('modal-bg');if(onClose)setTimeout(onClose,220);else setTimeout(advanceRevealChain,220);};
   box.appendChild(bLater);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 function handCap(){return 4+(S.skills.bighand?1:0);}
 function slotCap(){return SLOT_CAP+(S.skills.keeneye?1:0);}
@@ -2264,10 +2347,10 @@ function chooseSlotSwap(tag,newCardName){
       <div class="rule-body" style="text-align:center">「${newCardName}」を設置するには、いまある効果をひとつ入れ替える必要があります。</div>`;
     items.forEach(it=>{
       const b=elx('button','btn ghost');b.textContent=`${it.label} を入れ替える`;
-      b.onclick=()=>{$('modal-bg').classList.remove('show');res(it);};
+      b.onclick=()=>{closeOverlay('modal-bg');res(it);};
       box.appendChild(b);
     });
-    $('modal-bg').classList.add('show');
+    openOverlay('modal-bg');
   });
 }
 
@@ -2331,9 +2414,9 @@ function showEventModal(ev){
     $('ev-icon').textContent=ev.icon;$('ev-name').textContent=ev.name;$('ev-text').textContent=ev.text;
     const imp=$('ev-impact');imp.innerHTML='';impactChips(ev.fx).forEach(c=>imp.appendChild(c));
     const ft=$('ev-fact');if(ev.fact){ft.style.display='';ft.textContent=ev.fact;}else ft.style.display='none';
-    $('event-bg').classList.add('show');
+    openOverlay('event-bg');
     $('btn-ev-ok').onclick=async()=>{
-      $('btn-ev-ok').onclick=null;$('event-bg').classList.remove('show');
+      $('btn-ev-ok').onclick=null;closeOverlay('event-bg');
       await wait(180);await applyFx(ev.fx,ev.name,120,120);setLog(`できごと：<b>${ev.name}</b>`);updateBoard();await wait(160);res();
     };
   });
@@ -2347,13 +2430,13 @@ function showDilemma(d){
       b.innerHTML=`<div class="o-name">${o.name}</div><div class="o-fx">${o.fxText}</div>`;
       b.onclick=async()=>{
         box.querySelectorAll('button').forEach(x=>x.disabled=true);
-        $('dilemma-bg').classList.remove('show');await wait(160);
+        closeOverlay('dilemma-bg');await wait(160);
         await applyFx(o.fx,o.name,120,120);
         if(o.after)setLog(o.after,true);updateBoard();await wait(160);res();
       };
       box.appendChild(b);
     });
-    $('dilemma-bg').classList.add('show');
+    openOverlay('dilemma-bg');
   });
 }
 
@@ -2423,7 +2506,7 @@ function openCardSheet(card){
     $('d-slot').innerHTML=`🧩 ${t.label}の「ずっと」枠：<b>${n} / ${slotCap()}</b>${n>=slotCap()?'（設置には入れ替えが必要）':''}`;
   }else{$('d-slot').innerHTML='';}
   $('d-fact').textContent=c.fact;
-  $('sheet-bg').classList.add('show');
+  openOverlay('sheet-bg');
 }
 function fxLong(fx){
   const rows=[];
@@ -2451,7 +2534,7 @@ function openBrief(m){
     g+=`<div class="goal-row resident-row"><b>🧑 ${res.name}（${res.role}）</b><div>${res.front}</div></div>`;
   }
   $('b-goals').innerHTML=g;
-  $('brief-bg').classList.add('show');
+  openOverlay('brief-bg');
   $('btn-brief-deck').style.display=S.skills.deckEdit?'':'none';
   $('btn-brief-deck').classList.toggle('pulse',!S.flags.deckOpened&&!!S.skills.deckEdit);
 }
@@ -2473,10 +2556,10 @@ function openDomainSheet(dom){
     row.innerHTML=`<span class="mr-badge">${badge}</span>
       <div><div class="mr-name">${m.part===1?'前編':'後編'}　${m.name}</div><div class="mr-sub">${sub}</div></div>
       <span class="mr-state">${stt}</span>`;
-    if(st!=='locked')row.onclick=()=>{$('dom-bg').classList.remove('show');openBrief(m);};
+    if(st!=='locked')row.onclick=()=>{closeOverlay('dom-bg');openBrief(m);};
     list.appendChild(row);
   });
-  $('dom-bg').classList.add('show');
+  openOverlay('dom-bg');
 }
 
 /* ---------- letter (全行自動表示・閉じるボタン常時) ---------- */
@@ -2487,7 +2570,7 @@ function showLetter(data,onClose){
     const div=elx('div','l-line'+(l.w?' whisper':''));div.textContent=l.t;box.appendChild(div);
   });
   if(data.sign){const s=elx('div','l-sign');s.textContent=data.sign;box.appendChild(s);}
-  $('letter-bg').classList.add('show');
+  openOverlay('letter-bg');
   // reveal sequentially but close button is ALWAYS visible/enabled
   const nodes=[...box.querySelectorAll('.l-line, .l-sign')];
   let i=0;const step=()=>{if(i<nodes.length){nodes[i].classList.add('on');i++;setTimeout(step,FASTON()?4:340);}};
@@ -2495,18 +2578,11 @@ function showLetter(data,onClose){
   $('btn-letter-close').onclick=()=>{
     // if not all shown yet, first click reveals all; but never blocks closing
     if(nodes.some(n=>!n.classList.contains('on'))){nodes.forEach(n=>n.classList.add('on'));}
-    $('letter-bg').classList.remove('show');$('btn-letter-close').onclick=null;if(onClose)onClose();
+    closeOverlay('letter-bg');$('btn-letter-close').onclick=null;if(onClose)onClose();
   };
 }
 
 /* ---------- mission letter (ps) ---------- */
-function missionPsLines(m){
-  if(!m.ps)return null;
-  const lines=m.ps.split('\n').map(t=>({t}));
-  if(m.psStance&&S.stance&&m.psStance[S.stance])lines.push({t:m.psStance[S.stance],w:true});
-  return {lines,sign:'　　　　　　　　　　差出人より'};
-}
-
 /* ---------- result ---------- */
 function finishMission(win,detail){
   R.over=true;R.busy=false;
@@ -2607,20 +2683,20 @@ function finishMission(win,detail){
       bHome.onclick=()=>{closeResult();gotoHome([]);};acts.appendChild(bHome);
     }
   }
-  $('result-bg').classList.add('show');
+  openOverlay('result-bg');
 }
-function closeResult(){$('result-bg').classList.remove('show');}
+function closeResult(){closeOverlay('result-bg');}
 
 /* ---------- uiConfirm (confirmはサンドボックス不可) ---------- */
 function uiConfirm(title,msg,onYes,yesLabel){
   const box=$('modal-box');
   box.innerHTML=`<h3>${title}</h3><div class="rule-body" style="text-align:center">${msg}</div>`;
   const yes=elx('button','btn');yes.textContent=yesLabel||'はい';
-  yes.onclick=()=>{$('modal-bg').classList.remove('show');onYes&&onYes();};
+  yes.onclick=()=>{closeOverlay('modal-bg');onYes&&onYes();};
   const no=elx('button','btn ghost');no.textContent='やめる';
-  no.onclick=()=>$('modal-bg').classList.remove('show');
+  no.onclick=()=>closeOverlay('modal-bg');
   box.appendChild(yes);box.appendChild(no);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* =====================================================
@@ -2659,10 +2735,10 @@ function chooseStance(done){
   Object.keys(STANCES).forEach(k=>{
     const s=STANCES[k];const b=elx('button','stance-opt');
     b.innerHTML=`<div class="s-name">${s.icon} ${s.name}</div><div class="s-desc">${s.desc}</div><div class="s-fx">▸ ${s.fxText}</div>`;
-    b.onclick=()=>{S.stance=k;save();$('modal-bg').classList.remove('show');done&&done();};
+    b.onclick=()=>{S.stance=k;save();closeOverlay('modal-bg');done&&done();};
     box.appendChild(b);
   });
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* ---------- home ---------- */
@@ -2777,9 +2853,9 @@ function openSkillTree(){
   });
   box.appendChild(list);
   const close=elx('button','btn ghost');close.textContent='とじる';
-  close.onclick=()=>{$('modal-bg').classList.remove('show');setTimeout(advanceRevealChain,300);};
+  close.onclick=()=>{closeOverlay('modal-bg');setTimeout(advanceRevealChain,300);};
   box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* ---------- カード合成 ---------- */
@@ -2818,16 +2894,16 @@ function openSynth(){
     const node=elx('div','card');node.innerHTML=cardInner(c);
     const wrap=elx('div','coll-grid');wrap.appendChild(node);box.appendChild(wrap);
     const close=elx('button','btn');close.textContent='とじる';
-    close.onclick=()=>{$('modal-bg').classList.remove('show');
+    close.onclick=()=>{closeOverlay('modal-bg');
       if(!revealDone('chain'))setTimeout(()=>showReveal('chain'),300);};
     box.appendChild(close);
   };
   box.appendChild(confirmBtn);
   const close=elx('button','btn ghost');close.textContent='とじる';
-  close.onclick=()=>{$('modal-bg').classList.remove('show');
+  close.onclick=()=>{closeOverlay('modal-bg');
     if(!revealDone('chain'))setTimeout(()=>showReveal('chain'),300);};
   box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* ---------- デッキ編集(手持ちカードの出し入れ) ---------- */
@@ -2870,9 +2946,9 @@ function openDeckEditor(){
     box.appendChild(grid2);
   }
   const close=elx('button','btn');close.textContent='とじる';
-  close.onclick=()=>{$('modal-bg').classList.remove('show');$('sheet-bg').classList.remove('show');setTimeout(advanceRevealChain,300);};
+  close.onclick=()=>{closeOverlay('modal-bg');closeOverlay('sheet-bg');setTimeout(advanceRevealChain,300);};
   box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* ---------- collection ---------- */
@@ -2892,9 +2968,9 @@ function openCollection(){
     grid.appendChild(node);
   });
   box.appendChild(grid);
-  const close=elx('button','btn ghost');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');
+  const close=elx('button','btn ghost');close.textContent='とじる';close.onclick=()=>closeOverlay('modal-bg');
   box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  openOverlay('modal-bg');
 }
 
 /* ---------- menu ---------- */
@@ -2902,12 +2978,12 @@ function openMenu(fromPlay){
   const box=$('modal-box');box.innerHTML='<h3>メニュー</h3>';
   const rules=elx('button','btn ghost');rules.textContent='📖 あそびかた';rules.onclick=showRules;box.appendChild(rules);
   if(fromPlay){const quit=elx('button','btn ghost');quit.textContent='🏳️ 修復を中断して地球へ';
-    quit.onclick=()=>{$('modal-bg').classList.remove('show');uiConfirm('中断しますか？','この傷の進みは失われます。',()=>{R.over=true;gotoHome([]);},'中断する');};box.appendChild(quit);}
+    quit.onclick=()=>{closeOverlay('modal-bg');uiConfirm('中断しますか？','この傷の進みは失われます。',()=>{R.over=true;gotoHome([]);},'中断する');};box.appendChild(quit);}
   const reset=elx('button','btn ghost');reset.textContent='🔄 はじめから';
-  reset.onclick=()=>uiConfirm('最初から読み直しますか？','これまでの修復と手紙は、すべて最初に戻ります。',()=>{resetSave();$('modal-bg').classList.remove('show');startIntro();},'最初から');
+  reset.onclick=()=>uiConfirm('最初から読み直しますか？','これまでの修復と手紙は、すべて最初に戻ります。',()=>{resetSave();closeOverlay('modal-bg');startIntro();},'最初から');
   box.appendChild(reset);
-  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>closeOverlay('modal-bg');box.appendChild(close);
+  openOverlay('modal-bg');
 }
 function showRules(){
   const box=$('modal-box');
@@ -2926,8 +3002,8 @@ function showRules(){
    🔓 傷を治すと、つながった<b>別の傷</b>が解放されます(複数のことも)。<br>
    ✉️ 手紙の謎は、すべての傷を治したときに——。
    </div>`;
-  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>$('modal-bg').classList.remove('show');box.appendChild(close);
-  $('modal-bg').classList.add('show');
+  const close=elx('button','btn');close.textContent='とじる';close.onclick=()=>closeOverlay('modal-bg');box.appendChild(close);
+  openOverlay('modal-bg');
 }
 
 /* ---------- wire static buttons ---------- */
@@ -2938,14 +3014,14 @@ function wireButtons(){
   $('btn-synth').onclick=openSynth;
   $('btn-home-menu').onclick=()=>openMenu(false);
   $('btn-menu').onclick=()=>openMenu(true);
-  $('btn-sheet-close').onclick=()=>$('sheet-bg').classList.remove('show');
+  $('btn-sheet-close').onclick=()=>closeOverlay('sheet-bg');
   $('btn-sheet-play').onclick=()=>{
-    $('sheet-bg').classList.remove('show');
+    closeOverlay('sheet-bg');
     if(sheetCard&&R&&!R.over&&R.hand.some(h=>h.uid===sheetCard.uid)){const b=$('board').getBoundingClientRect();playCardByUid(sheetCard.uid,b.width/2,b.height/2);}
   };
-  $('btn-dom-close').onclick=()=>$('dom-bg').classList.remove('show');
-  $('btn-brief-close').onclick=()=>$('brief-bg').classList.remove('show');
-  $('btn-brief-go').onclick=()=>{$('brief-bg').classList.remove('show');startMission(briefMission);};
+  $('btn-dom-close').onclick=()=>closeOverlay('dom-bg');
+  $('btn-brief-close').onclick=()=>closeOverlay('brief-bg');
+  $('btn-brief-go').onclick=()=>{closeOverlay('brief-bg');startMission(briefMission);};
   $('btn-brief-deck').onclick=openDeckEditor;
   $('btn-hint').onclick=showHint;
   $('btn-end-restart').onclick=()=>uiConfirm('はじめから読み直しますか？','すべての修復と手紙が、最初に戻ります。',()=>{resetSave();startIntro();},'最初から');
