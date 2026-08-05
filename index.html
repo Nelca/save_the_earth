@@ -149,9 +149,10 @@ button{font-family:var(--gothic);cursor:pointer;border:none;color:inherit;backgr
 
 /* ============ EARTH (rotating realistic globe) ============ */
 .earth-holder{position:relative;line-height:0}
-.earth{width:100%;display:block;overflow:visible}
-.globe-clip-div{width:236px;height:236px;border-radius:50%;overflow:hidden;transform:translateZ(0)}
-.globe-clip-div svg{display:block}
+.earth{width:100%;display:block;overflow:visible;position:relative;z-index:2}
+.globe-clip-div{position:absolute;left:10.667%;top:10.667%;width:78.667%;height:78.667%;
+  border-radius:50%;overflow:hidden;z-index:1}
+.globe-clip-div svg{display:block;width:100%;height:100%}
 /* saturation veil driven by --sick (1=fully sick .. 0=healthy), set inline */
 .globe-tint{transition:opacity 1.8s ease}
 .globe-smog{transition:opacity 1.8s ease}
@@ -1787,61 +1788,60 @@ function earthSVG(opts){
      </g>`;
   });
   return `
+<div class="globe-clip-div">
+  <svg width="100%" height="100%" viewBox="32 32 236 236" style="display:block" xmlns="http://www.w3.org/2000/svg">
+   <defs>
+     <radialGradient id="oceanG" cx="40%" cy="34%" r="75%">
+       <stop offset="0%" stop-color="#2f7fc4"/><stop offset="55%" stop-color="#1c5aa0"/>
+       <stop offset="100%" stop-color="#0c2f66"/>
+     </radialGradient>
+     <linearGradient id="landG" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0%" stop-color="#6fbf6a"/><stop offset="100%" stop-color="#3f8f52"/>
+     </linearGradient>
+     <radialGradient id="shadeG" cx="66%" cy="70%" r="80%">
+       <stop offset="45%" stop-color="#000010" stop-opacity="0"/>
+       <stop offset="100%" stop-color="#000010" stop-opacity="0.6"/>
+     </radialGradient>
+     <radialGradient id="specG" cx="34%" cy="28%" r="34%">
+       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+     </radialGradient>
+     <filter id="cloudBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>
+   </defs>
+   <g id="globe-media" style="filter:${tintFilter(f)}">
+     <circle cx="150" cy="150" r="118" fill="url(#oceanG)"/>
+     <g class="rot-layer" style="--tilew:-236px">
+       <g transform="translate(32,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
+       <g transform="translate(268,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
+     </g>
+   </g>
+   <g class="cloud-layer" style="--tilew:-236px" filter="url(#cloudBlur)">
+     <g transform="translate(32,32)">${clouds}</g>
+     <g transform="translate(268,32)">${clouds}</g>
+   </g>
+   <g class="globe-smog" filter="url(#cloudBlur)" fill="#211d1a" opacity="${(f<1?(1-f)*0.85+0.1:0).toFixed(2)}">
+     <ellipse cx="122" cy="115" rx="52" ry="40" opacity=".62"/>
+     <ellipse cx="178" cy="162" rx="58" ry="46" opacity=".66"/>
+     <ellipse cx="108" cy="185" rx="38" ry="28" opacity=".55"/>
+     <ellipse cx="198" cy="105" rx="32" ry="26" opacity=".5"/>
+   </g>
+   <circle cx="150" cy="150" r="118" fill="#8b93a8" class="globe-tint" style="opacity:${hazeOp};mix-blend-mode:saturation"/>
+   <circle cx="150" cy="150" r="118" fill="url(#specG)"/>
+   <circle cx="150" cy="150" r="118" fill="url(#shadeG)"/>
+  </svg>
+</div>
 <svg class="earth" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
  <defs>
-   <radialGradient id="oceanG" cx="40%" cy="34%" r="75%">
-     <stop offset="0%" stop-color="#2f7fc4"/><stop offset="55%" stop-color="#1c5aa0"/>
-     <stop offset="100%" stop-color="#0c2f66"/>
-   </radialGradient>
-   <linearGradient id="landG" x1="0" y1="0" x2="0" y2="1">
-     <stop offset="0%" stop-color="#6fbf6a"/><stop offset="100%" stop-color="#3f8f52"/>
-   </linearGradient>
-   <radialGradient id="shadeG" cx="66%" cy="70%" r="80%">
-     <stop offset="45%" stop-color="#000010" stop-opacity="0"/>
-     <stop offset="100%" stop-color="#000010" stop-opacity="0.6"/>
-   </radialGradient>
-   <radialGradient id="specG" cx="34%" cy="28%" r="34%">
-     <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
-     <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-   </radialGradient>
    <radialGradient id="atmoG" cx="50%" cy="50%" r="50%">
      <stop offset="78%" stop-color="#7fd0ff" stop-opacity="0"/>
      <stop offset="92%" stop-color="#7fd0ff" stop-opacity="0.5"/>
      <stop offset="100%" stop-color="#7fd0ff" stop-opacity="0"/>
    </radialGradient>
    <filter id="symBlur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
-   <filter id="cloudBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>
    <filter id="beamGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2"/></filter>
  </defs>
 
  <circle cx="150" cy="150" r="127" fill="url(#atmoG)" class="globe-tint" style="opacity:${(0.4+f*0.6).toFixed(2)}"/>
-
- <foreignObject x="32" y="32" width="236" height="236">
-   <div xmlns="http://www.w3.org/1999/xhtml" class="globe-clip-div">
-     <svg width="236" height="236" viewBox="32 32 236 236" style="display:block">
-       <g id="globe-media" style="filter:${tintFilter(f)}">
-         <circle cx="150" cy="150" r="118" fill="url(#oceanG)"/>
-         <g class="rot-layer" style="--tilew:-236px">
-           <g transform="translate(32,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
-           <g transform="translate(268,32)" fill="url(#landG)" stroke="#2f6f43" stroke-width="0.6">${cont}</g>
-         </g>
-       </g>
-       <g class="cloud-layer" style="--tilew:-236px" filter="url(#cloudBlur)">
-         <g transform="translate(32,32)">${clouds}</g>
-         <g transform="translate(268,32)">${clouds}</g>
-       </g>
-       <g class="globe-smog" filter="url(#cloudBlur)" fill="#211d1a" opacity="${(f<1?(1-f)*0.85+0.1:0).toFixed(2)}">
-         <ellipse cx="122" cy="115" rx="52" ry="40" opacity=".62"/>
-         <ellipse cx="178" cy="162" rx="58" ry="46" opacity=".66"/>
-         <ellipse cx="108" cy="185" rx="38" ry="28" opacity=".55"/>
-         <ellipse cx="198" cy="105" rx="32" ry="26" opacity=".5"/>
-       </g>
-       <circle cx="150" cy="150" r="118" fill="#8b93a8" class="globe-tint" style="opacity:${hazeOp};mix-blend-mode:saturation"/>
-       <circle cx="150" cy="150" r="118" fill="url(#specG)"/>
-       <circle cx="150" cy="150" r="118" fill="url(#shadeG)"/>
-     </svg>
-   </div>
- </foreignObject>
  <circle cx="150" cy="150" r="118" fill="none" stroke="#bfe4ff" stroke-width="1" opacity="0.5"/>
 
  <g id="earth-front">
